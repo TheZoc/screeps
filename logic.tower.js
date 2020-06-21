@@ -14,7 +14,7 @@ var logicTower =
                 }
                 else
                 {
-                    var closestDamagedStructure = towers[i].pos.findClosestByRange(FIND_STRUCTURES, {
+                    var closestDamagedStructure = towers[i].pos.findClosestByRange(FIND_MY_STRUCTURES, {
                         filter: (structure) => structure.hits < structure.hitsMax
                     });
 

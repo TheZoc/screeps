@@ -5,7 +5,9 @@ var utilVisualizer =
         this.draw_storage_location(room);
         this.draw_spawn_message(room);
         this.draw_creep_count(room);
-//        this.draw_centroid(room);
+        // Experimental stuff
+        // this.draw_centroid(room);
+        // this.draw_centroid2(room);
     },
 
     draw_storage_location: function(room)
@@ -73,13 +75,53 @@ var utilVisualizer =
 
         // TODO: Check if floor() or ceil() works better here
         var x = _.floor(_.sum(xPos) / xPos.length);
-        var y = _.floor(_.sum(xPos) / xPos.length);
+        var y = _.floor(_.sum(yPos) / yPos.length);
 
         room.visual.rect(x - 0.5,
                          y - 0.5,
                          1,
                          1,
                          {fill: '#3AE2CE', stroke: '#00FFA9', strokeWidth: '0.05', opacity: '0.2'});
+
+        room.visual.text("C1", x, y + 0.25, {color: '#00FFA9', font: 0.8});
+    },
+
+    draw_centroid2: function(room)
+    {
+        var sources = room.find(FIND_SOURCES);
+
+        var xPos = Array();
+        var yPos = Array();
+
+        if (sources.length > 0)
+        {
+            for(var i = 0, l = sources.length; i < l; ++i)
+            {
+                xPos.push(sources[i].pos.x);
+                yPos.push(sources[i].pos.y);
+
+                // Lazy way of making a weigthed average
+                xPos.push(room.controller.pos.x);
+                yPos.push(room.controller.pos.y);
+            }
+        }
+        else
+        {
+            xPos.push(room.controller.pos.x);
+            yPos.push(room.controller.pos.y);
+        }
+
+        // TODO: Check if floor() or ceil() works better here
+        var x = _.floor(_.sum(xPos) / xPos.length);
+        var y = _.floor(_.sum(yPos) / yPos.length);
+
+        room.visual.rect(x - 0.5,
+                         y - 0.5,
+                         1,
+                         1,
+                         {fill: '#C57A1D', stroke: '#FF8C00', strokeWidth: '0.05', opacity: '0.2'});
+
+        room.visual.text("C2", x, y + 0.25, {color: '#FF8C00', font: 0.8});
     }
 };
 

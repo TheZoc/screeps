@@ -48,7 +48,7 @@ var roleHauler = {
         }
         else
         {
-            let targets = creep.room.find(FIND_STRUCTURES,
+            let targets = creep.room.find(FIND_MY_STRUCTURES,
             {
                 filter: (structure) =>
                 {
@@ -73,9 +73,30 @@ var roleHauler = {
             }
             else
             {
-                // No loitering! - Get out of the way so others can pass.
-                let target = creep.pos.findClosestByPath(FIND_MY_SPAWNS);
-                creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
+                // If we're here, all the spawns, extensions and structures are at their capacity. Start moving things to our storage.
+                let storages = creep.room.find(FIND_MY_STRUCTURES,
+                {
+                    filter: (structure) =>
+                    {
+                        return structure.structureType == STRUCTURE_STORAGE && structure.energy < structure.energyCapacity;
+                    }
+                });
+
+                if (storages.length > 0)
+                {
+                    let target = creep.pos.findClosestByPath(storages);
+                    if(creep.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
+                    {
+                        creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
+                    }
+                }
+                else
+                {
+                    // No loitering! - Get out of the way so others can pass.
+                    let target = creep.pos.findClosestByPath(FIND_MY_SPAWNS);
+                    creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
+                }
+
             }
         }
     }

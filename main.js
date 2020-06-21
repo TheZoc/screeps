@@ -33,6 +33,12 @@ module.exports.loop = function ()
 //    utilRoadPlanner.draw_planned_road();
 
 
+    if (Game.cpu.bucket >= 5000)
+    {
+        console.log("Bucket over 5000, generating pixel.")
+        Game.cpu.generatePixel();
+    }
+
     // Start by cleaning up the memory
     logicMemory.cleanup();
 
@@ -84,9 +90,21 @@ module.exports.loop = function ()
         }
         else if(creep.memory.role == 'builder')
         {
-            var targets = creep.room.find(FIND_CONSTRUCTION_SITES);
+            ////////////////////////////////////////
+            // TODO: Refactor this outside the loop.
+            var targets = creep.room.find(FIND_MY_CONSTRUCTION_SITES);
+            let closestMyDamagedStructure = creep.room.find(FIND_MY_STRUCTURES, {
+                    filter: (structure) => structure.hits < structure.hitsMax
+            });
 
-            if (targets.length)
+            let closestWallDamagedStructure = creep.room.find(FIND_STRUCTURES, {
+                filter: (structure) => structure.hits < structure.hitsMax && structure.structureType == STRUCTURE_WALL
+            });
+
+            var activateBuilder = targets.length || closestMyDamagedStructure.length || closestWallDamagedStructure.length;
+            ////////////////////////////////////////
+
+            if (activateBuilder)
             {
                 roleBuilder.run(creep);
             }
