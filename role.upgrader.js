@@ -53,6 +53,16 @@ var roleUpgrader = {
 
     pick_target: function(creep)
     {
+        // Check if we have a storage and if it has enough energy for us
+        if (creep.room.storage != undefined)
+        {
+            if (creep.room.storage.store.getUsedCapacity(RESOURCE_ENERGY) >= creep.carryCapacity)
+            {
+                creep.memory.targetSource = creep.room.storage.id;
+                return;
+            }
+        }
+        
         // Find the container with the most available energy and store it.
         let targets = creep.room.find(FIND_MY_STRUCTURES,
         {
