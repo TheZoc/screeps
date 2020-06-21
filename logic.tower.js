@@ -2,7 +2,7 @@ var logicTower =
 {
     run: function(room)
     {
-        towers = (room.find(FIND_MY_STRUCTURES, {filter: { structureType: STRUCTURE_TOWER }}));
+        let towers = (room.find(FIND_MY_STRUCTURES, {filter: { structureType: STRUCTURE_TOWER }}));
         if(towers.length)
         {
             for(let i = 0, l = towers.length; i < l; ++i)

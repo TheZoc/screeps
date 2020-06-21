@@ -12,23 +12,23 @@ var logicSpawn = {
     amountStaticHarvester   : 0,
     amountUpgrader          : 0,
 
-    listContainers          :0,
+    listContainers          : 0,
 
     run: function(targetSpawn)
     {
         if (targetSpawn.spawning)   // Saves processing cycles. Remove for debugging and extra messages ;)
             return;
 
-        willToSpawn = false;
+        logicSpawn.willToSpawn = false;
 
         // TODO: A room can contain multiple spawns. Change this to be room-based instead of spawn-based
         this.count_creeps(targetSpawn.room);
 
         this.spawn_static_harvester(targetSpawn);
-        if (!willToSpawn) this.spawn_hauler(targetSpawn);
-        if (!willToSpawn) this.spawn_upgrader(targetSpawn);
-        if (!willToSpawn) this.spawn_builder(targetSpawn);
-//        if (!willToSpawn) this.spawn_upgrader_newroom(targetSpawn);
+        if (!logicSpawn.willToSpawn) this.spawn_hauler(targetSpawn);
+        if (!logicSpawn.willToSpawn) this.spawn_upgrader(targetSpawn);
+        if (!logicSpawn.willToSpawn) this.spawn_builder(targetSpawn);
+//        if (!logicSpawn.willToSpawn) this.spawn_upgrader_newroom(targetSpawn);
 
         this.spawn_emergency_builder(targetSpawn);
         this.spawn_emergency_static_harvester(targetSpawn);
@@ -37,12 +37,12 @@ var logicSpawn = {
 
     count_creeps: function(targetRoom)
     {
-        amountBuilder           = _.filter(Game.creeps, (creep) => (creep.memory.role == 'builder'        ) && (creep.memory.room == targetRoom.name)).length;
-        amountHauler            = _.filter(Game.creeps, (creep) => (creep.memory.role == 'hauler'         ) && (creep.memory.room == targetRoom.name)).length;
-        amountStaticHarvester   = _.filter(Game.creeps, (creep) => (creep.memory.role == 'staticHarvester') && (creep.memory.room == targetRoom.name)).length;
-        amountUpgrader          = _.filter(Game.creeps, (creep) => (creep.memory.role == 'upgrader'       ) && (creep.memory.room == targetRoom.name)).length;
+        logicSpawn.amountBuilder           = _.filter(Game.creeps, (creep) => (creep.memory.role == 'builder'        ) && (creep.memory.room == targetRoom.name)).length;
+        logicSpawn.amountHauler            = _.filter(Game.creeps, (creep) => (creep.memory.role == 'hauler'         ) && (creep.memory.room == targetRoom.name)).length;
+        logicSpawn.amountStaticHarvester   = _.filter(Game.creeps, (creep) => (creep.memory.role == 'staticHarvester') && (creep.memory.room == targetRoom.name)).length;
+        logicSpawn.amountUpgrader          = _.filter(Game.creeps, (creep) => (creep.memory.role == 'upgrader'       ) && (creep.memory.room == targetRoom.name)).length;
 
-        listContainers          = targetRoom.find(FIND_STRUCTURES, { filter: (structure) => { return structure.structureType == STRUCTURE_CONTAINER; }});
+        logicSpawn.listContainers          = targetRoom.find(FIND_MY_STRUCTURES, { filter: (structure) => { return structure.structureType == STRUCTURE_CONTAINER; }});
 
     },
 
@@ -94,7 +94,7 @@ var logicSpawn = {
                     }
                     else
                     {
-                        willToSpawn = true;
+                        logicSpawn.willToSpawn = true;
                         let newStaticHarvesterName = staticHarvesterName + Game.time;
                         const spawnResult = util.spawn(targetSpawn,
                                                        staticHarvesterParts,
@@ -115,7 +115,7 @@ var logicSpawn = {
     spawn_hauler: function(targetSpawn)
     {
         // Only spawn haulers if we have containers!
-        if (listContainers.length === 0)
+        if (logicSpawn.listContainers.length === 0)
             return;
 
         // Spawn haulers here
@@ -142,7 +142,7 @@ var logicSpawn = {
             if (targetSpawn.room.memory.sources[i].haulers >= this.MAX_PER_SOURCE_HAULERS)
                 continue;
 
-            willToSpawn = true;
+            logicSpawn.willToSpawn = true;
             const spawnResult = util.spawn(targetSpawn,
                                            haulerParts,
                                            haulerName + Game.time,
@@ -158,7 +158,7 @@ var logicSpawn = {
 
     spawn_upgrader: function(targetSpawn)
     {
-        if (amountUpgrader >= this.MAX_PER_ROOM_UPGRADERS)
+        if (logicSpawn.amountUpgrader >= this.MAX_PER_ROOM_UPGRADERS)
             return;
 
         const upgraderName    = 'Upgrader';
@@ -185,7 +185,7 @@ var logicSpawn = {
         //console.log(desiredParts);
 
 
-        willToSpawn = true;
+        logicSpawn.willToSpawn = true;
         util.spawn(targetSpawn,
                    desiredParts,
                    upgraderName + Game.time,
@@ -206,7 +206,7 @@ var logicSpawn = {
         let   upgraderParts   = [MOVE,MOVE,WORK,WORK,CARRY,CARRY,CARRY,CARRY,CARRY]; // Cost: 550
 
 
-        willToSpawn = true;
+        logicSpawn.willToSpawn = true;
         util.spawn(targetSpawn,
                    upgraderParts,
                    upgraderName + Game.time,
@@ -216,7 +216,7 @@ var logicSpawn = {
 
     spawn_builder: function(targetSpawn)
     {
-        if (amountBuilder >= this.MAX_PER_ROOM_BUILDERS)
+        if (logicSpawn.amountBuilder >= this.MAX_PER_ROOM_BUILDERS)
             return;
 
         const builderName    = 'Builder';
@@ -252,7 +252,7 @@ var logicSpawn = {
         for(let i = 0; i < carryParts; ++i) desiredParts.push(CARRY);
 
 
-        willToSpawn = true;
+        logicSpawn.willToSpawn = true;
         util.spawn(targetSpawn,
                    desiredParts,
                    builderName + Game.time,
@@ -262,15 +262,15 @@ var logicSpawn = {
 
     spawn_emergency_static_harvester: function(targetSpawn)
     {
-        if (amountStaticHarvester > 0)
+        if (logicSpawn.amountStaticHarvester > 0)
             return;
 
         let targetSource = 0;
 
         // If we have containers, focus on harvesting and repairing the best one.
-        if (listContainers.length > 0)
+        if (logicSpawn.listContainers.length > 0)
         {
-            let bestContainer = util.maxRes(listContainers);
+            let bestContainer = util.maxRes(logicSpawn.listContainers);
             for(let i = 0, l = targetSpawn.room.memory.sources.length; i < l; ++i)
             {
                 if (targetSpawn.room.memory.sources[i].id == bestContainer.id)
@@ -284,7 +284,7 @@ var logicSpawn = {
         const staticHarvesterName   = 'EmergencySH' + Game.time;  // TODO: Move this to a global constant (?)
         let   staticHarvesterParts  = [MOVE,WORK,WORK,CARRY]; // Cost: 300
 
-        willToSpawn = true;
+        logicSpawn.willToSpawn = true;
         const spawnResult = util.spawn(targetSpawn,
                                        staticHarvesterParts,
                                        staticHarvesterName,
@@ -301,10 +301,10 @@ var logicSpawn = {
 
     spawn_emergency_builder: function(targetSpawn)
     {
-        if (amountBuilder >= this.MAX_PER_ROOM_BUILDERS)
+        if (logicSpawn.amountBuilder >= this.MAX_PER_ROOM_BUILDERS)
             return;
 
-        if (listContainers.length >= targetSpawn.room.memory.sources.length)
+        if (logicSpawn.listContainers.length >= targetSpawn.room.memory.sources.length)
             return;
 
         // If we're here, we have zero containers. We might as well create the first one:
@@ -322,7 +322,7 @@ var logicSpawn = {
         const builderName    = 'EmergencyBuilder';
         let   builderParts   = [MOVE,WORK,CARRY]; // Cost: 200
 
-        willToSpawn = true;
+        logicSpawn.willToSpawn = true;
         util.spawn(targetSpawn,
                    builderParts,
                    builderName + Game.time,
@@ -333,13 +333,13 @@ var logicSpawn = {
 
     spawn_emergency_hauler: function(targetSpawn)
     {
-        if (amountHauler > 0)
+        if (logicSpawn.amountHauler > 0)
             return;
 
-        if (listContainers.length === 0)
+        if (logicSpawn.listContainers.length === 0)
             return;
 
-        let bestContainer = util.maxRes(listContainers);
+        let bestContainer = util.maxRes(logicSpawn.listContainers);
         let targetSource  = 0; // HACK: This is set to -1 so we're able to track any issues in an easier fashion
         for(let i = 0, l = targetSpawn.room.memory.sources.length; i < l; ++i)
         {
@@ -354,7 +354,7 @@ var logicSpawn = {
         const haulerName   = 'EmergencyHauler';  // TODO: Move this to a global constant (?)
         let   haulerParts  = [MOVE,CARRY,CARRY,CARRY]; // Cost: 200
 
-        willToSpawn = true;
+        logicSpawn.willToSpawn = true;
         const spawnResult = util.spawn(targetSpawn,
                                        haulerParts,
                                        haulerName + Game.time,

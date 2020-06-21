@@ -59,7 +59,7 @@ module.exports.loop = function ()
 
 
     // TODO: Replace with a room/controller loop
-    for (spawn in Game.spawns)
+    for (let spawn in Game.spawns)
     {
         // Handle spawning
         logicSpawn.run(Game.spawns[spawn]);  // This might not work when using a controller loop (ABOVE TODO)

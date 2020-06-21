@@ -78,7 +78,7 @@ var roleHauler = {
                 {
                     filter: (structure) =>
                     {
-                        return structure.structureType == STRUCTURE_STORAGE && structure.energy < structure.energyCapacity;
+                        return structure.structureType == STRUCTURE_STORAGE && structure.store.getFreeCapacity() > 0;
                     }
                 });
 

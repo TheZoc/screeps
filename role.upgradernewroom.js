@@ -54,7 +54,7 @@ var roleUpgraderNewRoom = {
     pick_target: function(creep)
     {
         // Find the container with the most available energy and store it.
-        let targets = creep.room.find(FIND_STRUCTURES,
+        let targets = creep.room.find(FIND_MY_STRUCTURES,
         {
             filter: (structure) =>
             {

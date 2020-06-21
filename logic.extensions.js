@@ -4,7 +4,7 @@ var logicExtensions = {
 
     run: function(targetRoom)
     {
-        let listExtensions          = targetRoom.find(FIND_STRUCTURES, { filter: (structure) => { return structure.structureType == STRUCTURE_EXTENSION; }});
+        let listExtensions          = targetRoom.find(FIND_MY_STRUCTURES, { filter: (structure) => { return structure.structureType == STRUCTURE_EXTENSION; }});
 
         if (listExtensions.length >= CONTROLLER_STRUCTURES[STRUCTURE_EXTENSION][targetRoom.controller.level])
             return;
