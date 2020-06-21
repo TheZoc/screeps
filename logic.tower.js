@@ -7,20 +7,31 @@ var logicTower =
         {
             for(let i = 0, l = towers.length; i < l; ++i)
             {
-                var closestHostile = towers[i].pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+                let closestHostile = towers[i].pos.findClosestByRange(FIND_HOSTILE_CREEPS);
                 if(closestHostile)
                 {
                     towers[i].attack(closestHostile);
                 }
                 else
                 {
-                    var closestDamagedStructure = towers[i].pos.findClosestByRange(FIND_MY_STRUCTURES, {
+                    let closestDamagedStructure = towers[i].pos.findClosestByRange(FIND_MY_STRUCTURES, {
                         filter: (structure) => structure.hits < structure.hitsMax
                     });
 
                     if(closestDamagedStructure)
                     {
                         towers[i].repair(closestDamagedStructure);
+                    }
+                    else
+                    {
+                        let closestContainer = towers[i].pos.findClosestByRange(FIND_STRUCTURES, {
+                            filter: (structure) => structure.structureType == STRUCTURE_CONTAINER
+                        });
+
+                        if(closestContainer)
+                        {
+                            towers[i].repair(closestContainer);
+                        }
                     }
                 }
             }

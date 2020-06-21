@@ -42,8 +42,7 @@ var logicSpawn = {
         logicSpawn.amountStaticHarvester   = _.filter(Game.creeps, (creep) => (creep.memory.role == 'staticHarvester') && (creep.memory.room == targetRoom.name)).length;
         logicSpawn.amountUpgrader          = _.filter(Game.creeps, (creep) => (creep.memory.role == 'upgrader'       ) && (creep.memory.room == targetRoom.name)).length;
 
-        logicSpawn.listContainers          = targetRoom.find(FIND_MY_STRUCTURES, { filter: (structure) => { return structure.structureType == STRUCTURE_CONTAINER; }});
-
+        logicSpawn.listContainers          = targetRoom.find(FIND_STRUCTURES, { filter: (structure) => { return structure.structureType == STRUCTURE_CONTAINER; }});
     },
 
     spawn_static_harvester: function(targetSpawn)
