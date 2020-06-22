@@ -64,7 +64,7 @@ var roleBuilder = {
                     else
                     {
                         // Start with storage and containers, put them up to 80% hp whenever possible
-                        let closestRepairable = towers[i].pos.findClosestByRange(FIND_STRUCTURES, {
+                        let closestRepairable = creep.pos.findClosestByRange(FIND_STRUCTURES, {
                             filter: (structure) => (structure.structureType == STRUCTURE_CONTAINER ||
                                                     structure.structureType == STRUCTURE_ROAD) && structure.hits < structure.hitsMax * 0.8
                         });
