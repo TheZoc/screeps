@@ -25,7 +25,8 @@ var logicTower =
                     else
                     {
                         let closestContainer = towers[i].pos.findClosestByRange(FIND_STRUCTURES, {
-                            filter: (structure) => structure.structureType == STRUCTURE_CONTAINER
+                            filter: (structure) => (structure.structureType == STRUCTURE_CONTAINER ||
+                                                    structure.structureType == STRUCTURE_ROAD) && structure.hits < structure.hitsMax
                         });
 
                         if(closestContainer)

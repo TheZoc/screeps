@@ -63,33 +63,64 @@ var roleBuilder = {
                     }
                     else
                     {
-                        // Prioritize walls with less than 5% HP
-                        let closestWallDamagedStructure = creep.pos.findClosestByRange(FIND_STRUCTURES, {
-                            filter: (structure) => structure.hits < structure.hitsMax * 0.05 && structure.structureType == STRUCTURE_WALL
+                        // Start with storage and containers, put them up to 80% hp whenever possible
+                        let closestRepairable = towers[i].pos.findClosestByRange(FIND_STRUCTURES, {
+                            filter: (structure) => (structure.structureType == STRUCTURE_CONTAINER ||
+                                                    structure.structureType == STRUCTURE_ROAD) && structure.hits < structure.hitsMax * 0.8
                         });
-                        if (closestWallDamagedStructure)
+
+                        if (closestRepairable)
                         {
-                            if(creep.repair(closestWallDamagedStructure) == ERR_NOT_IN_RANGE)
+                            if(creep.repair(closestRepairable) == ERR_NOT_IN_RANGE)
                             {
-                                creep.say('🔧 rep W');
-                                creep.moveTo(closestWallDamagedStructure, {visualizePathStyle: {stroke: '#FF3333'}});
+                                creep.say('🔧 R C/R 80%');
+                                creep.moveTo(closestRepairable, {visualizePathStyle: {stroke: '#FF3333'}});
                             }
                         }
                         else
                         {
-                            // Remaining walls
+                            // Prioritize walls with less than 1% HP
                             let closestWallDamagedStructure = creep.pos.findClosestByRange(FIND_STRUCTURES, {
-                                filter: (structure) => structure.hits < structure.hitsMax && structure.structureType == STRUCTURE_WALL
+                                filter: (structure) => structure.hits < structure.hitsMax * 0.01 && structure.structureType == STRUCTURE_WALL
                             });
                             if (closestWallDamagedStructure)
                             {
                                 if(creep.repair(closestWallDamagedStructure) == ERR_NOT_IN_RANGE)
                                 {
-                                    creep.say('🔧 rep W');
+                                    creep.say('🔧 R W 1%');
                                     creep.moveTo(closestWallDamagedStructure, {visualizePathStyle: {stroke: '#FF3333'}});
                                 }
                             }
-
+                            else
+                            {
+//                                // Then put walls up to 5% HP
+//                                let closestWallDamagedStructure = creep.pos.findClosestByRange(FIND_STRUCTURES, {
+//                                    filter: (structure) => structure.hits < structure.hitsMax * 0.05 && structure.structureType == STRUCTURE_WALL
+//                                });
+//                                if (closestWallDamagedStructure)
+//                                {
+//                                    if(creep.repair(closestWallDamagedStructure) == ERR_NOT_IN_RANGE)
+//                                    {
+//                                        creep.say('🔧 R W 5%');
+//                                        creep.moveTo(closestWallDamagedStructure, {visualizePathStyle: {stroke: '#FF3333'}});
+//                                    }
+//                                }
+//                                else
+//                                {
+//                                    // Limit walls to 15% HP
+//                                    let closestWallDamagedStructure = creep.pos.findClosestByRange(FIND_STRUCTURES, {
+//                                        filter: (structure) => structure.hits < structure.hitsMax * 0.15 && structure.structureType == STRUCTURE_WALL
+//                                    });
+//                                    if (closestWallDamagedStructure)
+//                                    {
+//                                        if(creep.repair(closestWallDamagedStructure) == ERR_NOT_IN_RANGE)
+//                                        {
+//                                            creep.say('🔧 R W 15%');
+//                                            creep.moveTo(closestWallDamagedStructure, {visualizePathStyle: {stroke: '#FF3333'}});
+//                                        }
+//                                    }
+//                                }
+                            }
                         }
                     }
                 }
