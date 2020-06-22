@@ -167,7 +167,7 @@ var roleBuilder = {
         }
 
         // Find the container with the most available energy and store it.
-        let targets = creep.room.find(FIND_MY_STRUCTURES,
+        let targets = creep.room.find(FIND_STRUCTURES,
         {
             filter: (structure) =>
             {
