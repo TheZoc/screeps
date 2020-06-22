@@ -32,11 +32,14 @@ module.exports.loop = function ()
     global.numMsg = 0; // Used in util.spawn()
 //    utilRoadPlanner.draw_planned_road();
 
-
-    if (Game.cpu.bucket >= 5000)
+    // On official server, generate pixels
+    if (typeof Game.cpu.generatePixel == 'function')
     {
-        console.log("Bucket over 5000, generating pixel.")
-        Game.cpu.generatePixel();
+        if (Game.cpu.bucket >= 5000)
+        { 
+            console.log("Bucket over 5000, generating pixel.")
+            Game.cpu.generatePixel();
+        }
     }
 
     // Start by cleaning up the memory
