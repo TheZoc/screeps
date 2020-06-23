@@ -30,7 +30,7 @@ var roleHauler = {
             else if (withdrawResult == OK)
             {
                 // HACK HACK HACK - Lets speed things up if there's not enough energy to be withdrawed
-                if (creep.carry.energy > 0 && creep.carry.energy < creep.carryCapacity)
+                if (creep.store.getUsedCapacity(RESOURCE_ENERGY) > 0 && creep.store.getUsedCapacity(RESOURCE_ENERGY) < creep.store.getCapacity(RESOURCE_ENERGY))
                 {
                     creep.say('🔽early d');                
                 }
@@ -63,7 +63,8 @@ var roleHauler = {
                 {
                     creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
                 }
-                else if (transferResult == OK)
+
+                if (creep.store.getUsedCapacity(RESOURCE_ENERGY) === 0)
                 {
                     creep.memory.withdraw = true;
                 }
@@ -75,7 +76,7 @@ var roleHauler = {
                 {
                     filter: (structure) =>
                     {
-                        return structure.structureType == STRUCTURE_STORAGE && structure.store.getFreeCapacity() > 0;
+                        return structure.structureType == STRUCTURE_STORAGE && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
                     }
                 });
 
@@ -87,7 +88,8 @@ var roleHauler = {
                     {
                         creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
                     }
-                    else if (transferResult == OK)
+
+                    if (creep.store.getUsedCapacity(RESOURCE_ENERGY) === 0)
                     {
                         creep.memory.withdraw = true;
                     }
