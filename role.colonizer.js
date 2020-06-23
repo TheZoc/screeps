@@ -1,3 +1,5 @@
+// Game.spawns['Spawn1'].spawnCreep([MOVE], 'colonizer', {memory: {role: 'colonizer'}});
+
 var roleColonizer = {
     run: function(creep)
     {
@@ -6,10 +8,11 @@ var roleColonizer = {
         // TODO: Use Game.map.findRoute() to get this right.
         if (creep.pos.roomName != targetRoom)
         {
-            creep.moveTo(Game.flags.spawnflag);
+            creep.moveTo(Game.flags.colonizer);
             return;
         }
 
+/*
         // Only makes sense if there is a controller in the target room!
         if(creep.room.controller)
         {
@@ -22,8 +25,8 @@ var roleColonizer = {
         {
             creep.say('🛑PANIC🛑');
         }
-
+//*/
     }
 }
 
-module.exports = roleHauler;
+module.exports = roleColonizer;

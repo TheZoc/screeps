@@ -14,6 +14,7 @@ var roleUpgrader        = require('role.upgrader');
 var roleBuilder         = require('role.builder');
 var roleStaticHarvester = require('role.staticharvester');
 var roleUpgraderNewRoom = require('role.upgradernewroom');
+var roleColonizer       = require('role.colonizer');
 
 var utilVisualizer      = require('util.visualizer');
 var utilRoadPlanner     = require('util.roadplanner');
@@ -114,22 +115,10 @@ module.exports.loop = function ()
             else
                 roleUpgrader.run(creep);
         }
-/*
         else if(creep.memory.role == 'colonizer')
         {
-//            Game.creeps['Colonizer'].moveTo(Game.flags.Flag1);
-
-//*
-            if(creep.room.controller)
-            {
-                if(creep.claimController(creep.room.controller) == ERR_NOT_IN_RANGE)
-                {
-                    creep.moveTo(creep.room.controller);
-                }
-            }
-//* /
+            roleColonizer.run(creep);
         }
-//*/
 
     }
 }
