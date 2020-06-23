@@ -18,11 +18,11 @@ var roleUpgraderNewRoom = require('role.upgradernewroom');
 var utilVisualizer      = require('util.visualizer');
 var utilRoadPlanner     = require('util.roadplanner');
 
-/*
-utilRoadPlanner.plan(new RoomPosition(Game.spawns['Spawn1'].room.memory.sources[1].x,
-                                      Game.spawns['Spawn1'].room.memory.sources[1].y,
-                                      'W8N3'),
-                                      Game.spawns['Spawn1'].room.controller.pos);
+//*
+utilRoadPlanner.plan(new RoomPosition(Memory.rooms['W8N4'].sources[0].x,
+                                      Memory.rooms['W8N4'].sources[0].y,
+                                      'W8N4'),
+                                      Game.spawns['Spawn1'].room.storage.pos);
 //                                      Game.spawns['Spawn1'].pos);
 //*/
 // utilRoadPlanner.build_roads();

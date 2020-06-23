@@ -13,18 +13,28 @@ var utilRoadPlanner =
 
         for(var i = 0, l = pathfinderResults.path.length - 1; i < l; ++i)
         {
-            Game.rooms[pathfinderResults.path[i].roomName].visual.line(pathfinderResults.path[i],
-                                                                       pathfinderResults.path[i+1],
-                                                                       {width: 0.15, color: drawColor, opacity: 0.8, lineStyle: 'undefined'});
+            if (Game.rooms[pathfinderResults.path[i].roomName]   != undefined &&
+                Game.rooms[pathfinderResults.path[i+1].roomName] != undefined)
+            {
+                if (pathfinderResults.path[i].roomName != pathfinderResults.path[i+1].roomName)
+                    continue;
+
+                Game.rooms[pathfinderResults.path[i].roomName].visual.line(pathfinderResults.path[i],
+                                                                           pathfinderResults.path[i+1],
+                                                                           {width: 0.15, color: drawColor, opacity: 0.8, lineStyle: 'undefined'});
+            }
         }
 /*
         for(var i = 0, l = pathfinderResults.path.length; i < l; ++i)
         {
-            Game.rooms[pathfinderResults.path[i].roomName].visual.rect(pathfinderResults.path[i].x - 0.5,
-                                                                       pathfinderResults.path[i].y - 0.5,
-                                                                       1,
-                                                                       1,
-                                                                       {fill: drawColor, stroke: 'transparent', strokeWidth: '0.05', opacity: '0.4'});
+            if (Game.rooms[pathfinderResults.path[i].roomName] != undefined)
+            {
+                Game.rooms[pathfinderResults.path[i].roomName].visual.rect(pathfinderResults.path[i].x - 0.5,
+                                                                           pathfinderResults.path[i].y - 0.5,
+                                                                           1,
+                                                                           1,
+                                                                           {fill: drawColor, stroke: 'transparent', strokeWidth: '0.05', opacity: '0.4'});
+            }
         }
 //*/
 
