@@ -19,7 +19,7 @@ var roleColonizer       = require('role.colonizer');
 var utilVisualizer      = require('util.visualizer');
 var utilRoadPlanner     = require('util.roadplanner');
 
-//*
+/*
 utilRoadPlanner.plan(new RoomPosition(Memory.rooms['W8N4'].sources[0].x,
                                       Memory.rooms['W8N4'].sources[0].y,
                                       'W8N4'),
