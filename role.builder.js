@@ -130,15 +130,19 @@ var roleBuilder = {
         {
             if (creep.memory.targetSource === 'empty' || creep.memory.targetSource === null || creep.memory.targetSource === undefined)
             {
-                // This can happen when the creep was just spawned. Add the first target.
+                // 'empty' check is to ease the transition of legacy code - Remove in future.
+                // When the creep has just spawned, it won't have a target, so we add one here.
                 this.pick_resource_target(creep);
             }
-            else
+
+            if (creep.memory.targetSource !== 'empty' && creep.memory.targetSource !== null && creep.memory.targetSource !== undefined)
             {
                 let target = Game.getObjectById(creep.memory.targetSource);
-                if (!target)
+                if (!target) // If we somehow have an invalid target, try getting a new one before proceeding.
                 {
+                    console.log(creep.name + " has an invalid target: " + creep.memory.targetSource);
                     this.pick_resource_target(creep);
+                    target = Game.getObjectById(creep.memory.targetSource);
                 }
 
                 if (target)
@@ -149,10 +153,6 @@ var roleBuilder = {
                         if(harvestResult === ERR_NOT_IN_RANGE)
                         {
                             creep.moveTo(target, {visualizePathStyle: {stroke: '#ff3333'}});
-                        }
-                        else
-                        {
-                            console.log(harvestResult);
                         }
                     }
                     else
