@@ -187,7 +187,6 @@ var roleBuilder = {
 
     pick_resource_target: function(creep)
     {
-        creep.say(Game.time);
         // Check if we have a storage and if it has enough energy for us
         if (creep.room.storage !== undefined)
         {
