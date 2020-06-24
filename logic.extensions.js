@@ -4,6 +4,12 @@ var logicExtensions = {
 
     run: function(targetRoom)
     {
+        // Only run this function if enough time has passed since the last update (25 ticks).
+        if (Game.time < targetRoom.memory.nextUpdate.extensions)
+            return;
+
+        targetRoom.memory.nextUpdate.extensions = Game.time + 25;
+
         let listExtensions          = targetRoom.find(FIND_MY_STRUCTURES, { filter: (structure) => { return structure.structureType == STRUCTURE_EXTENSION; }});
 
         if (listExtensions.length >= CONTROLLER_STRUCTURES[STRUCTURE_EXTENSION][targetRoom.controller.level])

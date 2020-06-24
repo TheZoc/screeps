@@ -2,6 +2,7 @@ var logicMemoryInit = {
     run: function(targetRoom)
     {
         this.init_sources(targetRoom);
+        this.init_next_update_timestamps(targetRoom);
     },
 
     init_sources: function(targetRoom)
@@ -46,6 +47,15 @@ var logicMemoryInit = {
         }
 
     },
+
+    init_next_update_timestamps: function(targetRoom)
+    {
+        if (targetRoom.memory.nextUpdate)
+            return;
+
+        targetRoom.memory.nextUpdate = {};
+        targetRoom.memory.nextUpdate.extensions = 0;
+    }
 };
 
 module.exports = logicMemoryInit;
