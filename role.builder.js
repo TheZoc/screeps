@@ -130,18 +130,8 @@ var roleBuilder = {
         {
             if (creep.memory.targetSource === 'empty' || creep.memory.targetSource === null || creep.memory.targetSource === undefined)
             {
-                let source = creep.pos.findClosestByPath(FIND_SOURCES);
-                let harvestResult = creep.harvest(source);
-                if(harvestResult === ERR_NOT_IN_RANGE)
-                {
-                    creep.moveTo(source, {visualizePathStyle: {stroke: '#ff3333'}});
-                }
-                else if (harvestResult !== OK)
-                {
-                    // TODO: Check for ERR_NOT_ENOUGH_RESOURCES. Pick a new target if that's the case.
-                    // if (harvestResult !== ERR_BUSY) // Hide spawning messages
-                    //     console.log("Builder harvesting result: " + harvestResult);
-                }
+                // This can happen when the creep was just spawned. Add the first target.
+                this.pick_resource_target(creep);
             }
             else
             {
@@ -153,25 +143,40 @@ var roleBuilder = {
 
                 if (target)
                 {
-                    let withdrawResult = creep.withdraw(target, RESOURCE_ENERGY);
-                    if(withdrawResult === ERR_NOT_IN_RANGE)
+                    if (target.structureType === undefined) // Check if it's a source, or another structure
                     {
-                        creep.say('🔄 h ' + creep.memory.targetSource);
-                        creep.moveTo(target, {visualizePathStyle: {stroke: '#ffaa00'}});
-                    }
-                    else if (withdrawResult === OK)
-                    {
-                        // If the container got empty with less than 50% of the energy that the creep can handle
-                        // Search for a new source. Otherwise, get to work.
-                        if (creep.store.getUsedCapacity(RESOURCE_ENERGY) < creep.store.getUsedCapacity(RESOURCE_ENERGY) * 0.5)
+                        let harvestResult = creep.harvest(target);
+                        if(harvestResult === ERR_NOT_IN_RANGE)
                         {
-                            creep.say('〽️alt h')
-                            this.pick_resource_target(creep);
+                            creep.moveTo(target, {visualizePathStyle: {stroke: '#ff3333'}});
                         }
                         else
                         {
-                            creep.say('🚧 early build');
-                            creep.memory.building = true;
+                            console.log(harvestResult);
+                        }
+                    }
+                    else
+                    {
+                        let withdrawResult = creep.withdraw(target, RESOURCE_ENERGY);
+                        if(withdrawResult === ERR_NOT_IN_RANGE)
+                        {
+                            creep.say('🔄 h ' + creep.memory.targetSource);
+                            creep.moveTo(target, {visualizePathStyle: {stroke: '#ffaa00'}});
+                        }
+                        else if (withdrawResult === OK)
+                        {
+                            // If the container got empty with less than 50% of the energy that the creep can handle
+                            // Search for a new source. Otherwise, get to work.
+                            if (creep.store.getUsedCapacity(RESOURCE_ENERGY) < creep.store.getUsedCapacity(RESOURCE_ENERGY) * 0.5)
+                            {
+                                creep.say('〽️alt h')
+                                this.pick_resource_target(creep);
+                            }
+                            else
+                            {
+                                creep.say('🚧 early build');
+                                creep.memory.building = true;
+                            }
                         }
                     }
                 }
@@ -182,6 +187,7 @@ var roleBuilder = {
 
     pick_resource_target: function(creep)
     {
+        creep.say(Game.time);
         // Check if we have a storage and if it has enough energy for us
         if (creep.room.storage !== undefined)
         {
@@ -208,8 +214,40 @@ var roleBuilder = {
             }
         }
 
-        // If we're here, might be a good idea to harvest directly from source.
-        creep.memory.targetSource = 'empty';
+        // If we're here, might be a good idea to harvest directly from a source.
+        let sources = creep.room.find(FIND_SOURCES);
+        let sortedSources = _.sortByOrder(sources, s => s.energy, 'desc');
+
+        // A room can only have 2 sources max
+        if (sortedSources.length == 1)
+        {
+            creep.memory.targetSource = sortedSources[0].id;
+        }
+        else if (sortedSources.length == 2)
+        {
+            // Check if one of the sources has more than 80% energy than the other. If so, redirect creeps that way.
+            // This could get weird with low energy values available.
+            if (sortedSources[0].energy > sortedSources[1].energy * 0.8)
+            {
+                creep.memory.targetSource = sortedSources[0].id;
+            }
+            else if (sortedSources[1].energy > sortedSources[0].energy * 0.8)
+            {
+                creep.memory.targetSource = sortedSources[1].id;
+            }
+            else
+            {
+                // If we're here, they're pretty close. Use game tick to add randomness. (Risky!)
+                creep.memory.targetSource = sortedSources[Game.time % 2].id;
+            }
+            return;
+        }
+        else
+        {
+            // This shouldn't ever happen
+            console.log("More than 3 sources in a room detected.");
+            creep.memory.targetSource = sortedSources[Game.time % sortedSources.length].id;
+        }
     }
 };
 
