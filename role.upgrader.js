@@ -3,14 +3,13 @@ var roleUpgrader = {
     /** @param {Creep} creep **/
     run: function(creep)
     {
-
-        if(creep.memory.upgrading && creep.carry.energy == 0)
+        if(creep.memory.upgrading && creep.store.getUsedCapacity(RESOURCE_ENERGY) === 0)
         {
             creep.say('🔄 harvest');
             creep.memory.upgrading = false;
             this.pick_target(creep);
         }
-        if(!creep.memory.upgrading && creep.carry.energy == creep.carryCapacity)
+        if(!creep.memory.upgrading && creep.store.getUsedCapacity(RESOURCE_ENERGY) === creep.store.getCapacity(RESOURCE_ENERGY))
         {
             creep.say('⚡ upgrade');
             creep.memory.upgrading = true;
@@ -25,26 +24,46 @@ var roleUpgrader = {
         }
         else
         {
-            if (creep.memory.targetSource == 'empty')
+            if (creep.memory.targetSource === 'empty' || creep.memory.targetSource === null || creep.memory.targetSource === undefined)
             {
                 let sources = creep.room.find(FIND_SOURCES);
-                if(creep.harvest(sources[0]) == ERR_NOT_IN_RANGE)
+                let harvestResult = creep.harvest(sources[0]);
+                if(harvestResult === ERR_NOT_IN_RANGE)
                 {
                     creep.moveTo(sources[0], {visualizePathStyle: {stroke: '#FF3333'}});
                 }
-
             }
             else
             {
                 let target = Game.getObjectById(creep.memory.targetSource);
-
-                if(target && creep.withdraw(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
+                if (!target)
                 {
-                    creep.moveTo(target, {visualizePathStyle: {stroke: '#ffaa00'}});
+                    this.pick_resource_target(creep);
                 }
-                else
+
+                if (target)
                 {
-                    this.pick_target(creep);
+                    let withdrawResult = creep.withdraw(target, RESOURCE_ENERGY);
+                    if(withdrawResult === ERR_NOT_IN_RANGE)
+                    {
+                        creep.say('🔄 h ' + creep.memory.targetSource);
+                        creep.moveTo(target, {visualizePathStyle: {stroke: '#ffaa00'}});
+                    }
+                    else if (withdrawResult === OK)
+                    {
+                        // If the container got empty with less than 50% of the energy that the creep can handle
+                        // Search for a new source. Otherwise, get to work.
+                        if (creep.store.getUsedCapacity(RESOURCE_ENERGY) < creep.store.getUsedCapacity(RESOURCE_ENERGY) * 0.5)
+                        {
+                            creep.say('〽️alt h')
+                            this.pick_resource_target(creep);
+                        }
+                        else
+                        {
+                            creep.say('⚡ early upgrade');
+                            creep.memory.upgrading = true;
+                        }
+                    }
                 }
             }
 
@@ -54,29 +73,25 @@ var roleUpgrader = {
     pick_target: function(creep)
     {
         // Check if we have a storage and if it has enough energy for us
-        if (creep.room.storage != undefined)
+        if (creep.room.storage !== undefined)
         {
-            if (creep.room.storage.store.getUsedCapacity(RESOURCE_ENERGY) >= creep.carryCapacity)
+            if (creep.room.storage.store.getUsedCapacity(RESOURCE_ENERGY) >= creep.store.getFreeCapacity(RESOURCE_ENERGY))
             {
                 creep.memory.targetSource = creep.room.storage.id;
                 return;
             }
         }
-        
+
         // Find the container with the most available energy and store it.
         let targets = creep.room.find(FIND_STRUCTURES,
         {
-            filter: (structure) =>
-            {
-                return structure.structureType == STRUCTURE_CONTAINER;
-            }
+            filter: (structure) => structure.structureType === STRUCTURE_CONTAINER
         });
 
         if (targets.length)
         {
             let bestContainer = util.maxRes(targets);
-
-            if (bestContainer.store.energy > creep.carryCapacity)
+            if (bestContainer.store.getUsedCapacity(RESOURCE_ENERGY) >= creep.store.getFreeCapacity(RESOURCE_ENERGY))
             {
                 creep.memory.targetSource = bestContainer.id;
                 return;
