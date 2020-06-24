@@ -101,11 +101,13 @@ module.exports.loop = function ()
                     filter: (structure) => structure.hits < structure.hitsMax
             });
 
+            // IMPORTANT: The 0.01 here must be the same value used in role.builder.js
             let closestWallDamagedStructure = creep.room.find(FIND_STRUCTURES, {
-                filter: (structure) => structure.hits < structure.hitsMax && structure.structureType == STRUCTURE_WALL
+                filter: (structure) => structure.hits < structure.hitsMax * 0.01 && structure.structureType == STRUCTURE_WALL
             });
 
             var activateBuilder = targets.length || closestMyDamagedStructure.length || closestWallDamagedStructure.length;
+
             ////////////////////////////////////////
 
             if (activateBuilder)

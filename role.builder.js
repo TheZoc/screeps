@@ -3,17 +3,28 @@ var roleBuilder = {
     /** @param {Creep} creep **/
     run: function(creep)
     {
-
-        if(creep.memory.building && creep.carry.energy == 0)
+        if(creep.memory.building && creep.store.getUsedCapacity(RESOURCE_ENERGY) === 0)
         {
             creep.say('🔄 harvest');
             creep.memory.building = false;
             this.pick_resource_target(creep);
         }
-        if(!creep.memory.building && creep.carry.energy == creep.carryCapacity)
+        if (!creep.memory.building)
         {
-            creep.say('🚧 build');
-            creep.memory.building = true;
+            if (creep.store.getUsedCapacity(RESOURCE_ENERGY) == creep.store.getCapacity(RESOURCE_ENERGY))
+            {
+                creep.say('🚧 build');
+                creep.memory.building = true;
+            }
+            else
+            {
+                // Not enough energy in the target? If current target is the room storage, pick a new target.
+                let targetSource = Game.getObjectById(creep.memory.targetSource);
+                if (targetSource == creep.room.storage)
+                {
+                    this.pick_resource_target(creep);
+                }
+            }
         }
 
         if(creep.memory.building)
@@ -31,7 +42,7 @@ var roleBuilder = {
                 return;
             }
 
-            // If there's no exntesions, go to the closest CS
+            // If there's no extensions, go to the closest CS
             let targetCS = creep.pos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES);
             if(targetCS)
             {
@@ -79,6 +90,7 @@ var roleBuilder = {
                         }
                         else
                         {
+                            // IMPORTANT: The 0.01 here must be the same value used in main.js
                             // Prioritize walls with less than 1% HP
                             let closestWallDamagedStructure = creep.pos.findClosestByRange(FIND_STRUCTURES, {
                                 filter: (structure) => structure.hits < structure.hitsMax * 0.01 && structure.structureType == STRUCTURE_WALL
@@ -128,7 +140,7 @@ var roleBuilder = {
         }
         else
         {
-            if (creep.memory.targetSource == 'empty' || creep.memory.targetSource === null)
+            if (creep.memory.targetSource == 'empty' || creep.memory.targetSource === null || creep.memory.targetSource === undefined)
             {
                 let source = creep.pos.findClosestByPath(FIND_SOURCES);
                 if(creep.harvest(source) == ERR_NOT_IN_RANGE)
