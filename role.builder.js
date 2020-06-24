@@ -9,22 +9,10 @@ var roleBuilder = {
             creep.memory.building = false;
             this.pick_resource_target(creep);
         }
-        if (!creep.memory.building)
+        if (!creep.memory.building && creep.store.getUsedCapacity(RESOURCE_ENERGY) === creep.store.getCapacity(RESOURCE_ENERGY))
         {
-            if (creep.store.getUsedCapacity(RESOURCE_ENERGY) == creep.store.getCapacity(RESOURCE_ENERGY))
-            {
-                creep.say('🚧 build');
-                creep.memory.building = true;
-            }
-            else
-            {
-                // Not enough energy in the target? If current target is the room storage, pick a new target.
-                let targetSource = Game.getObjectById(creep.memory.targetSource);
-                if (targetSource == creep.room.storage)
-                {
-                    this.pick_resource_target(creep);
-                }
-            }
+            creep.say('🚧 build');
+            creep.memory.building = true;
         }
 
         if(creep.memory.building)
@@ -34,7 +22,7 @@ var roleBuilder = {
             if (csExtensions.length)
             {
                 let targetExtension = creep.pos.findClosestByPath(csExtensions);
-                if(creep.build(targetExtension) == ERR_NOT_IN_RANGE)
+                if(creep.build(targetExtension) === ERR_NOT_IN_RANGE)
                 {
                     creep.say('🚧🏠');
                     creep.moveTo(targetExtension, {visualizePathStyle: {stroke: '#ffffff'}});
@@ -46,7 +34,7 @@ var roleBuilder = {
             let targetCS = creep.pos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES);
             if(targetCS)
             {
-                if(creep.build(targetCS) == ERR_NOT_IN_RANGE)
+                if(creep.build(targetCS) === ERR_NOT_IN_RANGE)
                 {
                     creep.say('🚧');
                     creep.moveTo(targetCS, {visualizePathStyle: {stroke: '#ffffff'}});
@@ -66,7 +54,7 @@ var roleBuilder = {
                     });
                     if (closestMyDamagedStructure)
                     {
-                        if(creep.repair(closestMyDamagedStructure) == ERR_NOT_IN_RANGE)
+                        if(creep.repair(closestMyDamagedStructure) === ERR_NOT_IN_RANGE)
                         {
                             creep.say('🔧 rep M');
                             creep.moveTo(closestMyDamagedStructure, {visualizePathStyle: {stroke: '#FF3333'}});
@@ -76,13 +64,13 @@ var roleBuilder = {
                     {
                         // Start with storage and containers, put them up to 80% hp whenever possible
                         let closestRepairable = creep.pos.findClosestByRange(FIND_STRUCTURES, {
-                            filter: (structure) => (structure.structureType == STRUCTURE_CONTAINER ||
-                                                    structure.structureType == STRUCTURE_ROAD) && structure.hits < structure.hitsMax * 0.8
+                            filter: (structure) => (structure.structureType === STRUCTURE_CONTAINER ||
+                                                    structure.structureType === STRUCTURE_ROAD) && structure.hits < structure.hitsMax * 0.8
                         });
 
                         if (closestRepairable)
                         {
-                            if(creep.repair(closestRepairable) == ERR_NOT_IN_RANGE)
+                            if(creep.repair(closestRepairable) === ERR_NOT_IN_RANGE)
                             {
                                 creep.say('🔧 R C/R 80%');
                                 creep.moveTo(closestRepairable, {visualizePathStyle: {stroke: '#FF3333'}});
@@ -93,11 +81,11 @@ var roleBuilder = {
                             // IMPORTANT: The 0.01 here must be the same value used in main.js
                             // Prioritize walls with less than 1% HP
                             let closestWallDamagedStructure = creep.pos.findClosestByRange(FIND_STRUCTURES, {
-                                filter: (structure) => structure.hits < structure.hitsMax * 0.01 && structure.structureType == STRUCTURE_WALL
+                                filter: (structure) => structure.hits < structure.hitsMax * 0.01 && structure.structureType === STRUCTURE_WALL
                             });
                             if (closestWallDamagedStructure)
                             {
-                                if(creep.repair(closestWallDamagedStructure) == ERR_NOT_IN_RANGE)
+                                if(creep.repair(closestWallDamagedStructure) === ERR_NOT_IN_RANGE)
                                 {
                                     creep.say('🔧 R W 1%');
                                     creep.moveTo(closestWallDamagedStructure, {visualizePathStyle: {stroke: '#FF3333'}});
@@ -140,26 +128,52 @@ var roleBuilder = {
         }
         else
         {
-            if (creep.memory.targetSource == 'empty' || creep.memory.targetSource === null || creep.memory.targetSource === undefined)
+            if (creep.memory.targetSource === 'empty' || creep.memory.targetSource === null || creep.memory.targetSource === undefined)
             {
                 let source = creep.pos.findClosestByPath(FIND_SOURCES);
-                if(creep.harvest(source) == ERR_NOT_IN_RANGE)
+                let harvestResult = creep.harvest(source);
+                if(harvestResult === ERR_NOT_IN_RANGE)
                 {
-                    creep.moveTo(source, {visualizePathStyle: {stroke: '#FF3333'}});
+                    creep.moveTo(source, {visualizePathStyle: {stroke: '#ff3333'}});
+                }
+                else if (harvestResult !== OK)
+                {
+                    // TODO: Check for ERR_NOT_ENOUGH_RESOURCES. Pick a new target if that's the case.
+                    // if (harvestResult !== ERR_BUSY) // Hide spawning messages
+                    //     console.log("Builder harvesting result: " + harvestResult);
                 }
             }
             else
             {
                 let target = Game.getObjectById(creep.memory.targetSource);
-
-                if(target && creep.withdraw(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
-                {
-                    creep.say('🔄 h ' + creep.memory.targetSource);
-                    creep.moveTo(target, {visualizePathStyle: {stroke: '#ffaa00'}});
-                }
-                else
+                if (!target)
                 {
                     this.pick_resource_target(creep);
+                }
+
+                if (target)
+                {
+                    let withdrawResult = creep.withdraw(target, RESOURCE_ENERGY);
+                    if(withdrawResult === ERR_NOT_IN_RANGE)
+                    {
+                        creep.say('🔄 h ' + creep.memory.targetSource);
+                        creep.moveTo(target, {visualizePathStyle: {stroke: '#ffaa00'}});
+                    }
+                    else if (withdrawResult === OK)
+                    {
+                        // If the container got empty with less than 50% of the energy that the creep can handle
+                        // Search for a new source. Otherwise, get to work.
+                        if (creep.store.getUsedCapacity(RESOURCE_ENERGY) < creep.store.getUsedCapacity(RESOURCE_ENERGY) * 0.5)
+                        {
+                            creep.say('〽️alt h')
+                            this.pick_resource_target(creep);
+                        }
+                        else
+                        {
+                            creep.say('🚧 early build');
+                            creep.memory.building = true;
+                        }
+                    }
                 }
             }
 
@@ -169,9 +183,9 @@ var roleBuilder = {
     pick_resource_target: function(creep)
     {
         // Check if we have a storage and if it has enough energy for us
-        if (creep.room.storage != undefined)
+        if (creep.room.storage !== undefined)
         {
-            if (creep.room.storage.store.getUsedCapacity(RESOURCE_ENERGY) >= creep.carryCapacity)
+            if (creep.room.storage.store.getUsedCapacity(RESOURCE_ENERGY) >= creep.store.getFreeCapacity(RESOURCE_ENERGY))
             {
                 creep.memory.targetSource = creep.room.storage.id;
                 return;
@@ -181,17 +195,13 @@ var roleBuilder = {
         // Find the container with the most available energy and store it.
         let targets = creep.room.find(FIND_STRUCTURES,
         {
-            filter: (structure) =>
-            {
-                return structure.structureType == STRUCTURE_CONTAINER;
-            }
+            filter: (structure) => structure.structureType === STRUCTURE_CONTAINER
         });
 
         if (targets.length)
         {
             let bestContainer = util.maxRes(targets);
-
-            if (bestContainer.store.energy > creep.carryCapacity)
+            if (bestContainer.store.getUsedCapacity(RESOURCE_ENERGY) >= creep.store.getFreeCapacity(RESOURCE_ENERGY))
             {
                 creep.memory.targetSource = bestContainer.id;
                 return;
