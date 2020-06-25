@@ -1,9 +1,18 @@
+//////////////////////////////////////////////////////////////////////////////
+// This file is responsible for the whole spawning logic in the bot.
+//
+// Currently, it needs a good rewrite, with the following in mind:
+// - Refactor reusable code into functions
+// - Make the main function use the Room instead of the Spawn for reference
+// - General code cleanup
+//////////////////////////////////////////////////////////////////////////////
+
 var logicSpawn = {
     // "Constants"
-    MAX_PER_ROOM_BUILDERS         : 4,
-    MAX_PER_SOURCE_HAULERS        : 2, // This is counter per source, not per room!
-    MAX_PER_ROOM_STATICHARVESTERS : 2,
-    MAX_PER_ROOM_UPGRADERS        : 2,
+    MAX_PER_ROOM_BUILDERS          : 4,
+    MAX_PER_SOURCE_HAULERS         : 2, // This is counter per source, not per room!
+    MAX_PER_ROOM_STATIC_HARVESTERS : 2,
+    MAX_PER_ROOM_UPGRADERS         : 2,
 
     // Control Variables
     willToSpawn             : false,
@@ -16,6 +25,10 @@ var logicSpawn = {
 
     run: function(targetSpawn)
     {
+        // Only run this every 3 ticks, to save processing. TODO: Improve this once the rework is done.
+        if (Game.time % 3 > 0)
+            return;
+
         if (targetSpawn.spawning)   // Saves processing cycles. Remove for debugging and extra messages ;)
             return;
 
@@ -37,12 +50,12 @@ var logicSpawn = {
 
     count_creeps: function(targetRoom)
     {
-        logicSpawn.amountBuilder           = _.filter(Game.creeps, (creep) => (creep.memory.role == 'builder'        ) && (creep.memory.room == targetRoom.name)).length;
-        logicSpawn.amountHauler            = _.filter(Game.creeps, (creep) => (creep.memory.role == 'hauler'         ) && (creep.memory.room == targetRoom.name)).length;
-        logicSpawn.amountStaticHarvester   = _.filter(Game.creeps, (creep) => (creep.memory.role == 'staticHarvester') && (creep.memory.room == targetRoom.name)).length;
-        logicSpawn.amountUpgrader          = _.filter(Game.creeps, (creep) => (creep.memory.role == 'upgrader'       ) && (creep.memory.room == targetRoom.name)).length;
+        logicSpawn.amountBuilder           = _.filter(Game.creeps, (creep) => (creep.memory.role === 'builder'        ) && (creep.memory.room === targetRoom.name)).length;
+        logicSpawn.amountHauler            = _.filter(Game.creeps, (creep) => (creep.memory.role === 'hauler'         ) && (creep.memory.room === targetRoom.name)).length;
+        logicSpawn.amountStaticHarvester   = _.filter(Game.creeps, (creep) => (creep.memory.role === 'staticHarvester') && (creep.memory.room === targetRoom.name)).length;
+        logicSpawn.amountUpgrader          = _.filter(Game.creeps, (creep) => (creep.memory.role === 'upgrader'       ) && (creep.memory.room === targetRoom.name)).length;
 
-        logicSpawn.listContainers          = targetRoom.find(FIND_STRUCTURES, { filter: (structure) => { return structure.structureType == STRUCTURE_CONTAINER; }});
+        logicSpawn.listContainers          = targetRoom.find(FIND_STRUCTURES, { filter: (structure) => { return structure.structureType === STRUCTURE_CONTAINER; }});
     },
 
     spawn_static_harvester: function(targetSpawn)
@@ -100,7 +113,7 @@ var logicSpawn = {
                                                        newStaticHarvesterName,
                                                        {role: 'staticHarvester', source: i, room: targetSpawn.room.name},
                                                        staticHarvesterName);
-                        if (spawnResult == OK)
+                        if (spawnResult === OK)
                         {
                             targetRoom.memory.sources[i].harvester = newStaticHarvesterName;
                             break;  // Break out of for loop, nothing else to be done here.
@@ -196,7 +209,7 @@ var logicSpawn = {
     spawn_upgrader_newroom: function(targetSpawn)
     {
         const upgraderPerRoom = 1;
-        const upgraderAmount  = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgradernewroom').length;
+        const upgraderAmount  = _.filter(Game.creeps, (creep) => creep.memory.role === 'upgradernewroom').length;
 
         if (upgraderAmount >= upgraderPerRoom)
             return;
@@ -272,7 +285,7 @@ var logicSpawn = {
             let bestContainer = util.maxRes(logicSpawn.listContainers);
             for(let i = 0, l = targetSpawn.room.memory.sources.length; i < l; ++i)
             {
-                if (targetSpawn.room.memory.sources[i].id == bestContainer.id)
+                if (targetSpawn.room.memory.sources[i].id === bestContainer.id)
                 {
                     targetSource = i;
                     break;
@@ -292,7 +305,7 @@ var logicSpawn = {
                                        -1);
 
 
-        if (spawnResult == OK)
+        if (spawnResult === OK)
         {
             targetSpawn.room.memory.sources[targetSource].harvester = staticHarvesterName;
         }
@@ -313,9 +326,9 @@ var logicSpawn = {
                                                targetSpawn.room.memory.sources[0].y,
                                                targetSpawn.room.name);
 
-            let cs = targetPos.lookFor(LOOK_CONSTRUCTION_SITES);
+            const cs = targetPos.lookFor(LOOK_CONSTRUCTION_SITES);
             if (!cs.length)
-                targetSpawn.room.createConstructionSite(targetPos, STRUCTURE_CONTAINER);
+                targetSpawn.room.createConstructionSite(targetPos, STRUCTURE_CONTAINER)
         }
 
         const builderName    = 'EmergencyBuilder';
@@ -343,7 +356,7 @@ var logicSpawn = {
         for(let i = 0, l = targetSpawn.room.memory.sources.length; i < l; ++i)
         {
 
-            if (targetSpawn.room.memory.sources[i].id == bestContainer.id)
+            if (targetSpawn.room.memory.sources[i].id === bestContainer.id)
             {
                 targetSource = i;
                 break;
@@ -361,7 +374,7 @@ var logicSpawn = {
                                        haulerName,
                                        -1);
 
-        if (spawnResult == OK)
+        if (spawnResult === OK)
         {
             ++targetSpawn.room.memory.sources[targetSource].haulers;
         }
