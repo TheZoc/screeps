@@ -1,3 +1,12 @@
+//////////////////////////////////////////////////////////////////////////////
+// Simple Screeps AI
+//
+// Felipe Guedes
+//
+// A small bot with big ambitions :)
+//////////////////////////////////////////////////////////////////////////////
+
+// Initialization
 global.util             = require('util');
 global.ex               = (x) => JSON.stringify(x, null, 2);
 
@@ -19,6 +28,9 @@ var roleColonizer       = require('role.colonizer');
 var utilVisualizer      = require('util.visualizer');
 var utilRoadPlanner     = require('util.roadplanner');
 
+
+// This is a WIP road planner. It is planned outside of the loop to save cycles.
+// It doesn't work on it's own, needing user modification to use it.
 /*
 utilRoadPlanner.plan(new RoomPosition(Memory.rooms['W8N4'].sources[0].x,
                                       Memory.rooms['W8N4'].sources[0].y,
@@ -28,6 +40,7 @@ utilRoadPlanner.plan(new RoomPosition(Memory.rooms['W8N4'].sources[0].x,
 //*/
 // utilRoadPlanner.build_roads();
 
+// Main loop
 module.exports.loop = function ()
 {
     global.numMsg = 0; // Used in util.spawn()
@@ -37,7 +50,7 @@ module.exports.loop = function ()
     if (typeof Game.cpu.generatePixel == 'function')
     {
         if (Game.cpu.bucket >= 5000)
-        { 
+        {
             console.log("Bucket over 5000, generating pixel.")
             Game.cpu.generatePixel();
         }
@@ -46,6 +59,7 @@ module.exports.loop = function ()
     // Start by cleaning up the memory
     logicMemory.cleanup();
 
+    // Room utilities
     for(let k in Game.rooms)
     {
         // Initialize memory
@@ -69,55 +83,61 @@ module.exports.loop = function ()
         logicSpawn.run(Game.spawns[spawn]);  // This might not work when using a controller loop (ABOVE TODO)
     }
 
-    // Check role and run behavior function
-    for(var name in Game.creeps)
+    // Special checks for the builder - this prevent it to be run once per creep
+    let activateBuilder = {}
+    for(const [roomName, room] of Object.entries(Game.rooms))
     {
-        var creep = Game.creeps[name];
-        if(creep.memory.role == 'hauler')
+        // Process each room only once
+        if (activateBuilder[roomName] !== undefined)
+            continue;
+
+        // Find construction sites
+        const targets = room.find(FIND_MY_CONSTRUCTION_SITES);
+
+        // Find structures that are damaged
+        const closestMyDamagedStructure = room.find(FIND_MY_STRUCTURES, {
+            filter: (structure) => structure.hits < structure.hitsMax
+        });
+
+        // Find walls that need repairs
+        // IMPORTANT: The 0.01 here must be the same value used in role.builder.js
+        const closestWallDamagedStructure = room.find(FIND_STRUCTURES, {
+            filter: (structure) => structure.hits < structure.hitsMax * 0.01 && structure.structureType === STRUCTURE_WALL
+        });
+
+        activateBuilder[roomName] = targets.length || closestMyDamagedStructure.length || closestWallDamagedStructure.length;
+    }
+
+    // Go through all the creeps, check their role and run their behavior function
+    for(const [creepName, creep] of Object.entries(Game.creeps))
+    {
+        if(creep.memory.role === 'hauler')
         {
             roleHauler.run(creep);
         }
-        else if(creep.memory.role == 'staticHarvester')
+        else if(creep.memory.role === 'staticHarvester')
         {
             roleStaticHarvester.run(creep);
         }
-        else if(creep.memory.role == 'upgrader')
+        else if(creep.memory.role === 'upgrader')
         {
                 roleUpgrader.run(creep);
         }
-        else if(creep.memory.role == 'upgradernewroom')
+        else if(creep.memory.role === 'upgradernewroom')
         {
-            if (creep.pos.roomName != 'W1N4')
+            if (creep.pos.roomName !== 'W1N4')
                 creep.moveTo(Game.flags.spawnflag);
             else
                 roleUpgrader.run(creep);
         }
-        else if(creep.memory.role == 'builder')
+        else if(creep.memory.role === 'builder')
         {
-            ////////////////////////////////////////
-            // TODO: Refactor this outside the loop.
-            var targets = creep.room.find(FIND_MY_CONSTRUCTION_SITES);
-            let closestMyDamagedStructure = creep.room.find(FIND_MY_STRUCTURES, {
-                    filter: (structure) => structure.hits < structure.hitsMax
-            });
-
-            // IMPORTANT: The 0.01 here must be the same value used in role.builder.js
-            let closestWallDamagedStructure = creep.room.find(FIND_STRUCTURES, {
-                filter: (structure) => structure.hits < structure.hitsMax * 0.01 && structure.structureType == STRUCTURE_WALL
-            });
-
-            var activateBuilder = targets.length || closestMyDamagedStructure.length || closestWallDamagedStructure.length;
-
-            ////////////////////////////////////////
-
-            if (activateBuilder)
-            {
+            if (activateBuilder[creep.room])
                 roleBuilder.run(creep);
-            }
             else
                 roleUpgrader.run(creep);
         }
-        else if(creep.memory.role == 'colonizer')
+        else if(creep.memory.role === 'colonizer')
         {
             roleColonizer.run(creep);
         }
