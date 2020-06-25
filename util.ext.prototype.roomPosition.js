@@ -1,3 +1,7 @@
+//////////////////////////////////////////////////////////////////////////////
+// Extension functions added to RoomPosition prototype
+//////////////////////////////////////////////////////////////////////////////
+
 /**
  * Directional lookup table
  * @example: const [dx,dy] = DIR_TABLE[dir];
@@ -16,9 +20,17 @@ global.DIR_TABLE = {
 global.DIAGONALS   = [TOP_RIGHT, BOTTOM_RIGHT, BOTTOM_LEFT, TOP_LEFT];
 global.HORIZONTALS = [TOP, BOTTOM, LEFT, RIGHT];
 
-RoomPosition.prototype.addDirection = function (dir) {
-    var [dx, dy] = DIR_TABLE[dir];
-    var { x, y, roomName } = this;
+/**
+ * Given a room position and a direction defined in the DIR_TABLE, returns a new RoomPosition with the added direction
+ *
+ * @param {RoomPosition} direction - One of the directions defined in the DIR_TABLE
+ *
+ * @return {RoomPosition}
+ *
+ */
+RoomPosition.prototype.addDirection = function (direction) {
+    const [dx, dy] = DIR_TABLE[direction];
+    const { x, y, roomName } = this;
     return new RoomPosition(x + dx, y + dy, roomName);
 };
 
