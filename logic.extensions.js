@@ -1,7 +1,29 @@
-var logicExtensions = {
-    queueExtensions:        Array(),
-    currentNumExtensions:   0,
+//////////////////////////////////////////////////////////////////////////////
+// This is the automatic extension build logic. It will follow a X pattern
+// around the spawn. It is not planned to be a strict clockwise order, but
+// due to the way the structures are returned from the server, it's built in
+// clockwise order. the shape is similar to the mockup below:
+//
+//     o o o o o
+//      o o o o
+//     o o S o o
+//      o o o o
+//     o o o o o
+//////////////////////////////////////////////////////////////////////////////
 
+
+var logicExtensions = {
+
+    // Internal control variables
+    queueExtensions:      Array(),
+    currentNumExtensions: 0,
+
+    /**
+     * Given a target room, checks if it's possible to create new extensions, and create them around
+     * the Spawns present in the target room.
+     *
+     * @param {Room} targetRoom
+     */
     run: function(targetRoom)
     {
         // Only run this function if enough time has passed since the last update (25 ticks).
@@ -10,7 +32,9 @@ var logicExtensions = {
 
         targetRoom.memory.nextUpdate.extensions = Game.time + 25;
 
-        let listExtensions          = targetRoom.find(FIND_MY_STRUCTURES, { filter: (structure) => { return structure.structureType == STRUCTURE_EXTENSION; }});
+        const listExtensions = targetRoom.find(FIND_MY_STRUCTURES, {
+            filter: (structure) => structure.structureType === STRUCTURE_EXTENSION
+        });
 
         if (listExtensions.length >= CONTROLLER_STRUCTURES[STRUCTURE_EXTENSION][targetRoom.controller.level])
             return;
@@ -18,12 +42,12 @@ var logicExtensions = {
         // This is how it would need to be sorted:
         // listExtensions.sort((a,b)=>a.getRangeTo(spawn)-b.getRangeTo(spawn))
 
-        currentNumExtensions = listExtensions.length;
+        this.currentNumExtensions = listExtensions.length;
 
         // Always start from the spawn and work our way out
-        const roomSpawns          = targetRoom.find(FIND_MY_SPAWNS);
 
-        for (i in roomSpawns)
+        const roomSpawns = targetRoom.find(FIND_MY_SPAWNS);
+        for (let i = 0; i < roomSpawns.length; ++i)
         {
             this.queueExtensions.push(roomSpawns[i].pos);
         }
@@ -31,22 +55,29 @@ var logicExtensions = {
         this.expand(targetRoom);
     },
 
+    /**
+     * Greedy algorithm that expands in X shapes.
+     * The positions of the target spawns must already be inserted in queueExtensions.
+     *
+     * @param {Room} targetRoom - Target room to do the expansion
+     */
     expand(targetRoom)
     {
         while (this.queueExtensions.length > 0)
         {
-            if (currentNumExtensions >= CONTROLLER_STRUCTURES[STRUCTURE_EXTENSION][targetRoom.controller.level])
+            if (this.currentNumExtensions >= CONTROLLER_STRUCTURES[STRUCTURE_EXTENSION][targetRoom.controller.level])
                 return;
 
             const currentPos = this.queueExtensions.shift();
             const currentPosDiagonals = _.map(DIAGONALS, (d) => currentPos.addDirection(d));
 
-            for (i in currentPosDiagonals)
+            // Iterate over the candidates array
+            for (let i = 0; i < currentPosDiagonals.length; ++i)
             {
                 const structures = currentPosDiagonals[i].lookFor(LOOK_STRUCTURES);
                 if (structures.length)
                 {
-                    if (structures[0].structureType == STRUCTURE_EXTENSION)
+                    if (structures[0].structureType === STRUCTURE_EXTENSION)
                         this.queueExtensions.push(currentPosDiagonals[i]);
                     continue; // Skip if this is some other structure
                 }
@@ -54,7 +85,7 @@ var logicExtensions = {
                 const cs = currentPos.lookFor(LOOK_CONSTRUCTION_SITES);
                 if (cs.length)
                 {
-                    if (cs[0].structureType == STRUCTURE_EXTENSION)
+                    if (cs[0].structureType === STRUCTURE_EXTENSION)
                         this.queueExtensions.push(currentPosDiagonals[i]);
                     continue; // Skip if this is some other structure
                 }
@@ -62,7 +93,7 @@ var logicExtensions = {
                 // If we're still here, spawn the structure
                 targetRoom.createConstructionSite(currentPosDiagonals[i], STRUCTURE_EXTENSION);
                 this.queueExtensions.push(currentPosDiagonals[i]);
-                ++currentNumExtensions;
+                ++this.currentNumExtensions;
             }
         }
 
