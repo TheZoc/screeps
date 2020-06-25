@@ -1,6 +1,41 @@
+//////////////////////////////////////////////////////////////////////////////
+// This is a role for the Builder creep.
+// Their purpose is to fetch the resources harvested by the Static Harvester
+// from its container and transfer it to the closest tower, spawn or
+// extension. When they're full, start stocking the resources in the room's
+// storage.
+//////////////////////////////////////////////////////////////////////////////
+
 var roleBuilder = {
 
-    /** @param {Creep} creep **/
+    /**
+     * This function runs the Builder behavior for the given creep.
+     * It is a finite state machine with 2 possible states: Building or not.
+     *
+     * If the creep has just spawned, look for a resource pool to collect from
+     * and will proceed in the not building state.
+     *
+     * Not-Building state:
+     * Do some sanity checks for the resource pool to collect from, and start moving
+     * on it's way. If it's a source, harvest from. If it's a container, transfer
+     * (collect) from.
+     * If at least 50% of it's capacity is collected from the resource pool, it will
+     * transition to the Building state. Otherwise, it will look for another source
+     * to fill it's container.
+     *
+     * Building state:
+     * The creep will attempt to move to and build or repair with the following priority:
+     * - Construction Sites for Extensions
+     * - Construction Sites (others)
+     * - Repair own structures with 90% or less Hit points
+     * - Repair roads or containers with 80% or less Hit points
+     * - Repair walls until they have 1% of Hit points (3 millions HP)
+     *
+     * The main.js file is responsible to assign the creep to the Upgrader role if there
+     * isn't any building work to do.
+     *
+     * @param {Creep} creep - Creep to execute the role
+     */
     run: function(creep)
     {
         if(creep.memory.building && creep.store.getUsedCapacity(RESOURCE_ENERGY) === 0)
@@ -50,13 +85,13 @@ var roleBuilder = {
                 if (damagedStructure)
                 {
                     let closestMyDamagedStructure = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
-                        filter: (structure) => structure.hits < structure.hitsMax
+                        filter: (structure) => structure.hits < structure.hitsMax * 0.9
                     });
                     if (closestMyDamagedStructure)
                     {
                         if(creep.repair(closestMyDamagedStructure) === ERR_NOT_IN_RANGE)
                         {
-                            creep.say('🔧 rep M');
+                            creep.say('🔧 rep M 90%');
                             creep.moveTo(closestMyDamagedStructure, {visualizePathStyle: {stroke: '#FF3333'}});
                         }
                     }
@@ -147,7 +182,7 @@ var roleBuilder = {
 
                 if (target)
                 {
-                    if (target.structureType === undefined) // Check if it's a source, or another structure
+                    if (target.structureType === undefined) // Check if it's a source, or another structure. Undefined means source.
                     {
                         let harvestResult = creep.harvest(target);
                         if(harvestResult === ERR_NOT_IN_RANGE)
@@ -185,6 +220,19 @@ var roleBuilder = {
         }
     },
 
+    /**
+     * This function selects a new resource pool, for the creep, to collect resources from.
+     *
+     * Try to collect energy from the storage first, if available.
+     * If it's not possible, try to find the best container to collect from.
+     * If that's still not possible, find a source that we can harvest.
+     *
+     * If the creep needs to find a source to harvest, it will attempt to find the one with
+     * as most energy as possible. If they're pretty close in the energy levels, a random
+     * source is given. (This last bit can be improved)
+     *
+     * @param {Creep} creep - Target creep that is looking for a new resource pool.
+     */
     pick_resource_target: function(creep)
     {
         // Check if we have a storage and if it has enough energy for us
@@ -218,11 +266,11 @@ var roleBuilder = {
         let sortedSources = _.sortByOrder(sources, s => s.energy, 'desc');
 
         // A room can only have 2 sources max
-        if (sortedSources.length == 1)
+        if (sortedSources.length === 1)
         {
             creep.memory.targetSource = sortedSources[0].id;
         }
-        else if (sortedSources.length == 2)
+        else if (sortedSources.length === 2)
         {
             // Check if one of the sources has more than 80% energy than the other. If so, redirect creeps that way.
             // This could get weird with low energy values available.
