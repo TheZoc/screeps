@@ -132,7 +132,7 @@ module.exports.loop = function ()
         }
         else if(creep.memory.role === 'builder')
         {
-            if (activateBuilder[creep.room])
+            if (activateBuilder[creep.room.name])
                 roleBuilder.run(creep);
             else
                 roleUpgrader.run(creep);
