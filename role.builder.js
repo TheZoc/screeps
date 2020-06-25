@@ -1,9 +1,8 @@
 //////////////////////////////////////////////////////////////////////////////
 // This is a role for the Builder creep.
-// Their purpose is to fetch the resources harvested by the Static Harvester
-// from its container and transfer it to the closest tower, spawn or
-// extension. When they're full, start stocking the resources in the room's
-// storage.
+// Their purpose is to get available resources, in the following priority
+// order: Storage > Static Harverter's container > harvest from source.
+// And then build and repair structures in the room.
 //////////////////////////////////////////////////////////////////////////////
 
 var roleBuilder = {
