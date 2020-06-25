@@ -49,7 +49,8 @@ var roleHauler = {
             const withdrawResult = creep.withdraw(withdrawSource, RESOURCE_ENERGY);
             if(withdrawResult === ERR_NOT_IN_RANGE)
             {
-                creep.moveTo(Game.getObjectById(creep.memory.fromStructure), {visualizePathStyle: {stroke: '#FFEA88'}});
+                if (!creep.fatigue)
+                    creep.moveTo(Game.getObjectById(creep.memory.fromStructure), {visualizePathStyle: {stroke: '#FFEA88'}});
             }
             else if (withdrawResult === ERR_NOT_ENOUGH_RESOURCES && withdrawSource.id === creep.room.storage.id)
             {
@@ -91,7 +92,8 @@ var roleHauler = {
                 const transferResult = creep.transfer(target, RESOURCE_ENERGY);
                 if(transferResult === ERR_NOT_IN_RANGE)
                 {
-                    creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
+                    if (!creep.fatigue)
+                        creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
                 }
 
                 if (creep.store.getUsedCapacity(RESOURCE_ENERGY) === 0)
@@ -116,7 +118,8 @@ var roleHauler = {
                     const transferResult = creep.transfer(target, RESOURCE_ENERGY);
                     if(transferResult === ERR_NOT_IN_RANGE)
                     {
-                        creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
+                        if (!creep.fatigue)
+                            creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
                     }
 
                     if (creep.store.getUsedCapacity(RESOURCE_ENERGY) === 0)
@@ -128,7 +131,8 @@ var roleHauler = {
                 {
                     // No loitering! - Get out of the way so others can pass.
                     const target = creep.pos.findClosestByPath(FIND_MY_SPAWNS);
-                    creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
+                    if (!creep.fatigue)
+                        creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
                 }
             }
         }

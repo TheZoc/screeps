@@ -37,7 +37,8 @@ var roleStaticHarvester = {
         {
             creep.say('➡️(' + targetPos.x + ',' + targetPos.y + ')');
 
-            creep.moveTo(targetPos, {visualizePathStyle: {stroke: '#FDCE6F'}});
+            if (!creep.fatigue)
+                creep.moveTo(targetPos, {visualizePathStyle: {stroke: '#FDCE6F'}});
             return;
         }
 

@@ -59,7 +59,8 @@ var roleBuilder = {
                 if(creep.build(targetExtension) === ERR_NOT_IN_RANGE)
                 {
                     creep.say('🚧🏠');
-                    creep.moveTo(targetExtension, {visualizePathStyle: {stroke: '#ffffff'}});
+                    if (!creep.fatigue)
+                        creep.moveTo(targetExtension, {visualizePathStyle: {stroke: '#ffffff'}});
                 }
                 return;
             }
@@ -71,7 +72,8 @@ var roleBuilder = {
                 if(creep.build(targetCS) === ERR_NOT_IN_RANGE)
                 {
                     creep.say('🚧');
-                    creep.moveTo(targetCS, {visualizePathStyle: {stroke: '#ffffff'}});
+                    if (!creep.fatigue)
+                        creep.moveTo(targetCS, {visualizePathStyle: {stroke: '#ffffff'}});
                 }
             }
             else
@@ -91,7 +93,8 @@ var roleBuilder = {
                         if(creep.repair(closestMyDamagedStructure) === ERR_NOT_IN_RANGE)
                         {
                             creep.say('🔧 rep M 90%');
-                            creep.moveTo(closestMyDamagedStructure, {visualizePathStyle: {stroke: '#FF3333'}});
+                            if (!creep.fatigue)
+                                creep.moveTo(closestMyDamagedStructure, {visualizePathStyle: {stroke: '#FF3333'}});
                         }
                     }
                     else
@@ -107,7 +110,8 @@ var roleBuilder = {
                             if(creep.repair(closestRepairable) === ERR_NOT_IN_RANGE)
                             {
                                 creep.say('🔧 R C/R 80%');
-                                creep.moveTo(closestRepairable, {visualizePathStyle: {stroke: '#FF3333'}});
+                                if (!creep.fatigue)
+                                    creep.moveTo(closestRepairable, {visualizePathStyle: {stroke: '#FF3333'}});
                             }
                         }
                         else
@@ -122,7 +126,8 @@ var roleBuilder = {
                                 if(creep.repair(closestWallDamagedStructure) === ERR_NOT_IN_RANGE)
                                 {
                                     creep.say('🔧 R W 1%');
-                                    creep.moveTo(closestWallDamagedStructure, {visualizePathStyle: {stroke: '#FF3333'}});
+                                    if (!creep.fatigue)
+                                        creep.moveTo(closestWallDamagedStructure, {visualizePathStyle: {stroke: '#FF3333'}});
                                 }
                             }
                             else
@@ -136,7 +141,8 @@ var roleBuilder = {
 //                                    if(creep.repair(closestWallDamagedStructure) == ERR_NOT_IN_RANGE)
 //                                    {
 //                                        creep.say('🔧 R W 5%');
-//                                        creep.moveTo(closestWallDamagedStructure, {visualizePathStyle: {stroke: '#FF3333'}});
+//                                        if (!creep.fatigue)
+//                                            creep.moveTo(closestWallDamagedStructure, {visualizePathStyle: {stroke: '#FF3333'}});
 //                                    }
 //                                }
 //                                else
@@ -150,7 +156,8 @@ var roleBuilder = {
 //                                        if(creep.repair(closestWallDamagedStructure) == ERR_NOT_IN_RANGE)
 //                                        {
 //                                            creep.say('🔧 R W 15%');
-//                                            creep.moveTo(closestWallDamagedStructure, {visualizePathStyle: {stroke: '#FF3333'}});
+//                                            if (!creep.fatigue)
+//                                                creep.moveTo(closestWallDamagedStructure, {visualizePathStyle: {stroke: '#FF3333'}});
 //                                        }
 //                                    }
 //                                }
@@ -186,7 +193,8 @@ var roleBuilder = {
                         let harvestResult = creep.harvest(target);
                         if(harvestResult === ERR_NOT_IN_RANGE)
                         {
-                            creep.moveTo(target, {visualizePathStyle: {stroke: '#ff3333'}});
+                            if (!creep.fatigue)
+                                creep.moveTo(target, {visualizePathStyle: {stroke: '#ff3333'}});
                         }
                     }
                     else
@@ -195,7 +203,8 @@ var roleBuilder = {
                         if(withdrawResult === ERR_NOT_IN_RANGE)
                         {
                             creep.say('🔄 h ' + creep.memory.targetSource);
-                            creep.moveTo(target, {visualizePathStyle: {stroke: '#ffaa00'}});
+                            if (!creep.fatigue)
+                                creep.moveTo(target, {visualizePathStyle: {stroke: '#ffaa00'}});
                         }
                         else if (withdrawResult === OK)
                         {

@@ -49,7 +49,8 @@ var roleUpgrader = {
         {
             if(creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE)
             {
-                creep.moveTo(creep.room.controller, {visualizePathStyle: {stroke: '#3333ff'}});
+                if (!creep.fatigue)
+                    creep.moveTo(creep.room.controller, {visualizePathStyle: {stroke: '#3333ff'}});
             }
         }
         else
@@ -78,7 +79,8 @@ var roleUpgrader = {
                         let harvestResult = creep.harvest(target);
                         if(harvestResult === ERR_NOT_IN_RANGE)
                         {
-                            creep.moveTo(target, {visualizePathStyle: {stroke: '#ff3333'}});
+                            if (!creep.fatigue)
+                                creep.moveTo(target, {visualizePathStyle: {stroke: '#ff3333'}});
                         }
                     }
                     else
@@ -87,7 +89,8 @@ var roleUpgrader = {
                         if(withdrawResult === ERR_NOT_IN_RANGE)
                         {
                             creep.say('🔄 h ' + creep.memory.targetSource);
-                            creep.moveTo(target, {visualizePathStyle: {stroke: '#ffaa00'}});
+                            if (!creep.fatigue)
+                                creep.moveTo(target, {visualizePathStyle: {stroke: '#ffaa00'}});
                         }
                         else if (withdrawResult === OK)
                         {

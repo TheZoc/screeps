@@ -126,7 +126,8 @@ module.exports.loop = function ()
         else if(creep.memory.role === 'upgradernewroom')
         {
             if (creep.pos.roomName !== 'W1N4')
-                creep.moveTo(Game.flags.spawnflag);
+                if (!creep.fatigue)
+                    creep.moveTo(Game.flags.spawnflag);
             else
                 roleUpgrader.run(creep);
         }

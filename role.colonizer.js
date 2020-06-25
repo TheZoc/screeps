@@ -8,7 +8,8 @@ var roleColonizer = {
         // TODO: Use Game.map.findRoute() to get this right.
         if (creep.pos.roomName != targetRoom)
         {
-            creep.moveTo(Game.flags.colonizer);
+            if (!creep.fatigue)
+                creep.moveTo(Game.flags.colonizer);
             return;
         }
 
