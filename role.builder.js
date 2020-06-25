@@ -202,7 +202,7 @@ var roleBuilder = {
                         {
                             // If the container got empty with less than 50% of the energy that the creep can handle
                             // Search for a new source. Otherwise, get to work.
-                            if (creep.store.getUsedCapacity(RESOURCE_ENERGY) < creep.store.getUsedCapacity(RESOURCE_ENERGY) * 0.5)
+                            if (creep.store.getUsedCapacity(RESOURCE_ENERGY) < creep.store.getCapacity(RESOURCE_ENERGY) * 0.5)
                             {
                                 creep.say('〽️alt h')
                                 this.pick_resource_target(creep);
