@@ -1,5 +1,15 @@
+//////////////////////////////////////////////////////////////////////////////
+// This file contains a set of functions to display some utilities in the
+// screen - e.g. Creep counter, spawning messages, target locations for
+// storages (for the static harvesters) and some other experimental,
+// currently not used functions.
+//////////////////////////////////////////////////////////////////////////////
+
 var utilVisualizer =
 {
+    /**
+     * @param {Room} room
+     */
     draw: function(room)
     {
         this.draw_storage_location(room);
@@ -10,9 +20,12 @@ var utilVisualizer =
         // this.draw_centroid2(room);
     },
 
+    /**
+     * @param {Room} room
+     */
     draw_storage_location: function(room)
     {
-        for(var i = 0, l = room.memory.sources.length; i < l; ++i)
+        for(let i = 0, l = room.memory.sources.length; i < l; ++i)
         {
             room.visual.rect(room.memory.sources[i].x - 0.5,
                              room.memory.sources[i].y - 0.5,
@@ -22,14 +35,17 @@ var utilVisualizer =
         }
     },
 
+    /**
+     * @param {Room} room
+     */
     draw_spawn_message: function(room)
     {
-        var spawns = room.find(FIND_MY_SPAWNS);
-        for(var i = 0, l = spawns.length; i < l; ++i)
+        let spawns = room.find(FIND_MY_SPAWNS);
+        for(let i = 0, l = spawns.length; i < l; ++i)
         {
             if(spawns[i].spawning)
             {
-                var spawningCreep = Game.creeps[spawns[i].spawning.name];
+                let spawningCreep = Game.creeps[spawns[i].spawning.name];
                 spawns[i].room.visual.text(
                     '🛠️' + spawningCreep.memory.role,
                     spawns[i].pos.x + 1,
@@ -41,12 +57,15 @@ var utilVisualizer =
     },
 
     // This should be processing intensive. Only enable for debugging!
+    /**
+     * @param {Room} room
+     */
     draw_creep_count: function(room)
     {
-        const staticHarvesterAmount = _.filter(Game.creeps, (creep) => (creep.memory.role == 'staticHarvester') && (creep.memory.room == room.name)).length;
-        const haulerAmount          = _.filter(Game.creeps, (creep) => (creep.memory.role == 'hauler')          && (creep.memory.room == room.name)).length;
-        const upgraderAmount        = _.filter(Game.creeps, (creep) => (creep.memory.role == 'upgrader')        && (creep.memory.room == room.name)).length;
-        const builderAmount         = _.filter(Game.creeps, (creep) => (creep.memory.role == 'builder')         && (creep.memory.room == room.name)).length;
+        const staticHarvesterAmount = _.filter(Game.creeps, (creep) => (creep.memory.role === 'staticHarvester') && (creep.memory.room === room.name)).length;
+        const haulerAmount          = _.filter(Game.creeps, (creep) => (creep.memory.role === 'hauler')          && (creep.memory.room === room.name)).length;
+        const upgraderAmount        = _.filter(Game.creeps, (creep) => (creep.memory.role === 'upgrader')        && (creep.memory.room === room.name)).length;
+        const builderAmount         = _.filter(Game.creeps, (creep) => (creep.memory.role === 'builder')         && (creep.memory.room === room.name)).length;
 
         let line = 0;
         room.visual.text('Creep summary:', 0, line++, {align: 'left', opacity: 0.8});
@@ -56,26 +75,29 @@ var utilVisualizer =
         room.visual.text('Builder: ' + builderAmount, 0, line++, {align: 'left', opacity: 0.8});
     },
 
-    // Currently a test function. Should find the centroid betewen Sources and Room Controller. Might be useful for automated expansions.
+    // Currently a test function. Should find the centroid between Sources and Room Controller. Might be useful for automated expansions.
+    /**
+     * @param {Room} room
+     */
     draw_centroid: function(room)
     {
-        var sources = room.find(FIND_SOURCES);
+        const sources = room.find(FIND_SOURCES);
 
-        var xPos = Array();
-        var yPos = Array();
+        let xPos = Array();
+        let yPos = Array();
 
         xPos.push(room.controller.pos.x);
         yPos.push(room.controller.pos.y);
 
-        for(var i = 0, l = sources.length; i < l; ++i)
+        for(let i = 0, l = sources.length; i < l; ++i)
         {
             xPos.push(sources[i].pos.x);
             yPos.push(sources[i].pos.y);
         }
 
         // TODO: Check if floor() or ceil() works better here
-        var x = _.floor(_.sum(xPos) / xPos.length);
-        var y = _.floor(_.sum(yPos) / yPos.length);
+        const x = _.floor(_.sum(xPos) / xPos.length);
+        const y = _.floor(_.sum(yPos) / yPos.length);
 
         room.visual.rect(x - 0.5,
                          y - 0.5,
@@ -86,21 +108,24 @@ var utilVisualizer =
         room.visual.text("C1", x, y + 0.25, {color: '#00FFA9', font: 0.8});
     },
 
+    /**
+     * @param {Room} room
+     */
     draw_centroid2: function(room)
     {
-        var sources = room.find(FIND_SOURCES);
+        const sources = room.find(FIND_SOURCES);
 
-        var xPos = Array();
-        var yPos = Array();
+        let xPos = Array();
+        let yPos = Array();
 
         if (sources.length > 0)
         {
-            for(var i = 0, l = sources.length; i < l; ++i)
+            for(let i = 0, l = sources.length; i < l; ++i)
             {
                 xPos.push(sources[i].pos.x);
                 yPos.push(sources[i].pos.y);
 
-                // Lazy way of making a weigthed average
+                // Lazy way of making a weighted average
                 xPos.push(room.controller.pos.x);
                 yPos.push(room.controller.pos.y);
             }
@@ -112,8 +137,8 @@ var utilVisualizer =
         }
 
         // TODO: Check if floor() or ceil() works better here
-        var x = _.floor(_.sum(xPos) / xPos.length);
-        var y = _.floor(_.sum(yPos) / yPos.length);
+        const x = _.floor(_.sum(xPos) / xPos.length);
+        const y = _.floor(_.sum(yPos) / yPos.length);
 
         room.visual.rect(x - 0.5,
                          y - 0.5,
