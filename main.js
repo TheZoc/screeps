@@ -24,7 +24,7 @@ var roleUpgrader        = require('role.upgrader');
 var roleBuilder         = require('role.builder');
 var roleStaticHarvester = require('role.staticharvester');
 var roleUpgraderNewRoom = require('role.upgradernewroom');
-var roleColonizer       = require('role.colonizer');
+var roleScout           = require('role.scout');
 
 var utilVisualizer      = require('util.visualizer');
 var utilRoadPlanner     = require('util.roadplanner');
@@ -142,10 +142,9 @@ module.exports.loop = function ()
             else
                 roleUpgrader.run(creep);
         }
-        else if(creep.memory.role === 'colonizer')
+        else if(creep.memory.role === 'scout')
         {
-            roleColonizer.run(creep);
+            roleScout.run(creep);
         }
-
     }
 }
