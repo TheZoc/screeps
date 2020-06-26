@@ -75,6 +75,23 @@ var roleHauler = {
         }
         else
         {
+            // Storage links uses a special routine that skips all the logic
+            if(creep.memory.storageLink === true)
+            {
+                const transferResult = creep.transfer(creep.room.storage, RESOURCE_ENERGY);
+                if(transferResult === ERR_NOT_IN_RANGE)
+                {
+                    if (!creep.fatigue)
+                        creep.moveTo(creep.room.storage, {visualizePathStyle: {stroke: '#ffffff'}});
+                }
+                else if (transferResult === OK)
+                {
+                    creep.memory.transferFromLink = false;
+                    creep.memory.withdraw = true;
+                    return;
+                }
+            }
+
             const targets = creep.room.find(FIND_MY_STRUCTURES,
             {
                 filter: (structure) =>
@@ -154,6 +171,19 @@ var roleHauler = {
      */
     pick_resource_target: function(creep, skipStorage = false)
     {
+        // Quick hack - transfer the link
+        if (creep.room.memory.links.storageLink !== undefined)
+        {
+            const creepFreeCapacity = creep.store.getFreeCapacity(RESOURCE_ENERGY);
+            if (creep.room.memory.links.storageEnergy >= creepFreeCapacity)
+            {
+                creep.room.memory.links.storageEnergy -= creepFreeCapacity;       // Reserve the energy from the link (Check logic.link.js)
+                creep.memory.fromStructure = creep.room.memory.links.storageLink; // Target the link
+                creep.memory.storageLink = true; // Indicates we're transferring from the link, to speed up the process
+                return true;
+            }
+        }
+
         if (!skipStorage)
         {
             // This initial block check if there's less than 50% of resources available in spawn + extensions.
