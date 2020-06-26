@@ -47,21 +47,40 @@ var roleHauler = {
 
             const withdrawSource = Game.getObjectById(creep.memory.fromStructure);
             const withdrawResult = creep.withdraw(withdrawSource, RESOURCE_ENERGY);
+            const initialEnergy  = creep.store.getUsedCapacity(RESOURCE_ENERGY); // Used with link structures
             if(withdrawResult === ERR_NOT_IN_RANGE)
             {
                 if (!creep.fatigue)
                     creep.moveTo(Game.getObjectById(creep.memory.fromStructure), {visualizePathStyle: {stroke: '#FFEA88'}});
             }
-            else if (withdrawResult === ERR_NOT_ENOUGH_RESOURCES && withdrawSource.id === creep.room.storage.id)
+            else if (withdrawResult === ERR_NOT_ENOUGH_RESOURCES)
             {
-                // If we were fetching from storage and it's now empty, get resources from somewhere else.
-                this.pick_resource_target(creep, true);
+                if (withdrawSource.id === creep.room.storage.id)
+                {
+                    // If we were fetching from storage and it's now empty, get resources from somewhere else.
+                    this.pick_resource_target(creep, true);
+                }
+
+                if (withdrawSource.id === creep.room.memory.links.storageLink)
+                {
+                    console.log("WARNING: Hauler attempted to get energy from empty link");
+                    this.pick_resource_target(creep, true);
+                }
+            }
+            else if (withdrawResult === ERR_FULL)
+            {
+                // This happened once. Keep an eye for it.
+                console.log("WARNING: Hauler withdraw result: ERR_FULL");
+                creep.memory.withdraw = false;
             }
             else if (withdrawResult === OK)
             {
+                const creepEnergy = creep.store.getUsedCapacity(RESOURCE_ENERGY);
+                const deltaEnergy = creepEnergy - initialEnergy;
+
                 // HACK HACK HACK - Lets speed things up if there's not enough energy to be withdrawn
-                if (creep.store.getUsedCapacity(RESOURCE_ENERGY) > 0 &&
-                    creep.store.getUsedCapacity(RESOURCE_ENERGY) < creep.store.getCapacity(RESOURCE_ENERGY))
+                if (creepEnergy > 0 &&
+                    creepEnergy < creep.store.getCapacity(RESOURCE_ENERGY))
                 {
                     creep.say('🔽early d');
                 }
@@ -71,12 +90,22 @@ var roleHauler = {
                 }
                 creep.memory.withdraw = false;
                 delete creep.memory["fromStructure"];
+
+                // Handle Link accumulator
+                let reservedDifference = creep.memory["reservedEnergy"] - deltaEnergy;
+                creep.room.memory.links.storageEnergy -= reservedDifference;
+                delete creep.memory["reservedEnergy"];
+            }
+            else
+            {
+                if (withdrawResult !== ERR_BUSY)
+                    console.log("Hauler withdraw result: " + withdrawResult);
             }
         }
         else
         {
             // Storage links uses a special routine that skips all the logic
-            if(creep.memory.storageLink === true)
+            if(creep.memory.transferFromLink === true)
             {
                 const transferResult = creep.transfer(creep.room.storage, RESOURCE_ENERGY);
                 if(transferResult === ERR_NOT_IN_RANGE)
@@ -86,7 +115,7 @@ var roleHauler = {
                 }
                 else if (transferResult === OK)
                 {
-                    creep.memory.transferFromLink = false;
+                    delete creep.memory["transferFromLink"];
                     creep.memory.withdraw = true;
                     return;
                 }
@@ -177,9 +206,12 @@ var roleHauler = {
             const creepFreeCapacity = creep.store.getFreeCapacity(RESOURCE_ENERGY);
             if (creep.room.memory.links.storageEnergy >= creepFreeCapacity)
             {
-                creep.room.memory.links.storageEnergy -= creepFreeCapacity;       // Reserve the energy from the link (Check logic.link.js)
+                const reservedEnergy = Math.min(creepFreeCapacity, creep.room.memory.links.storageEnergy);
+                creep.room.memory.links.storageEnergy -= reservedEnergy;       // Reserve the energy from the link (Check logic.link.js)
+                creep.memory.reservedEnergy = reservedEnergy;
+
                 creep.memory.fromStructure = creep.room.memory.links.storageLink; // Target the link
-                creep.memory.storageLink = true; // Indicates we're transferring from the link, to speed up the process
+                creep.memory.transferFromLink = true; // Indicates we're transferring from the link, to speed up the process
                 return true;
             }
         }
