@@ -25,6 +25,7 @@ var roleBuilder         = require('role.builder');
 var roleStaticHarvester = require('role.staticharvester');
 var roleUpgraderNewRoom = require('role.upgradernewroom');
 var roleScout           = require('role.scout');
+var roleNeighbourMiner  = require('role.neighbourminer');
 
 var utilVisualizer      = require('util.visualizer');
 var utilRoadPlanner     = require('util.roadplanner');
@@ -145,6 +146,10 @@ module.exports.loop = function ()
         else if(creep.memory.role === 'scout')
         {
             roleScout.run(creep);
+        }
+        else if(creep.memory.role === 'neighbourminer')
+        {
+            roleNeighbourMiner.run(creep);
         }
     }
 }
