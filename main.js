@@ -16,6 +16,7 @@ var logicSpawn          = require('logic.spawn');
 var logicMemoryInit     = require('logic.memoryinit');
 var logicMemory         = require('logic.memory');
 var logicTower          = require('logic.tower');
+var logicLink           = require('logic.link');
 var logicExtensions     = require('logic.extensions');
 
 var roleHauler          = require('role.hauler');
@@ -73,6 +74,9 @@ module.exports.loop = function ()
 
         // Run the tower logic
         logicTower.run(Game.rooms[k]);
+
+        // Run the link logic
+        logicLink.run(Game.rooms[k]);
     }
 
 
