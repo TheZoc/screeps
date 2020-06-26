@@ -92,6 +92,11 @@ var roleUpgrader = {
                             if (!creep.fatigue)
                                 creep.moveTo(target, {visualizePathStyle: {stroke: '#ffaa00'}});
                         }
+                        else if (withdrawResult === ERR_NOT_ENOUGH_RESOURCES)
+                        {
+                            creep.say(" ⤵️swap");
+                            this.pick_resource_target(creep);
+                        }
                         else if (withdrawResult === OK)
                         {
                             // If the container got empty with less than 50% of the energy that the creep can handle
