@@ -26,7 +26,8 @@ var logicTower =
                 {
                     // No threat? Repair damaged structures
                     let closestOwnedDamagedStructure = towers[i].pos.findClosestByRange(FIND_MY_STRUCTURES, {
-                        filter: (structure) => structure.hits < structure.hitsMax
+                        filter: (structure) => (structure.structureType !== STRUCTURE_RAMPART && structure.hits < structure.hitsMax) ||
+                                               (structure.structureType === STRUCTURE_RAMPART && structure.hits < structure.hitsMax * 0.01)
                     });
 
                     if(closestOwnedDamagedStructure)

@@ -14,6 +14,9 @@
 // Game.spawns['Spawn1'].spawnCreep([MOVE,MOVE,WORK,WORK,CARRY,CARRY,CARRY,CARRY], 'neighbourminer', {memory: {role: 'neighbourminer', harvestRoom: 'W8N4', deliveryRoom: 'W7N4'}});
 // Game.spawns['Spawn1'].spawnCreep([MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY], 'neighbourminer', {memory: {role: 'neighbourminer', harvestRoom: 'W8N4', deliveryRoom: 'W7N4'}});
 
+
+// Game.spawns['Spawn1'].spawnCreep([MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY], 'neighbourminer', {memory: {role: 'neighbourminer', harvestRoom: 'W12S16', deliveryRoom: 'W13S16'}});
+
 // Harvest a neighbor room resource and put it in the main link
 
 var roleNeighbourMiner = {
