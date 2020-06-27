@@ -20,13 +20,6 @@ var roleNeighbourMiner = {
 
     run: function(creep)
     {
-        // Test server
-        let deposit_link_id = "4836bc44497473b";
-
-        // Official server
-//        let deposit_link_id = "4836bc44497473b";
-
-
         if (creep.memory.working === undefined || creep.memory.working === true)
         {
             if (creep.store.getUsedCapacity(RESOURCE_ENERGY) < creep.store.getCapacity(RESOURCE_ENERGY))
@@ -85,7 +78,6 @@ var roleNeighbourMiner = {
                     {
                         creep.say(">PANIC!<");
                     }
-                    return;
                 }
             }
             else
@@ -121,18 +113,57 @@ var roleNeighbourMiner = {
                 return;
             }
 
+            let targetLink = null;
+            if (creep.memory.targetLinkId !== undefined)
+            {
+                targetLink = Game.getObjectById(creep.memory.targetLinkId);
+            }
 
-            const target = Game.getObjectById(deposit_link_id);
-            if (!creep.pos.inRangeTo(target.pos, 1))
+            if (targetLink === null)
+            {
+                // Find our target link, if this is the first
+                // Assume we always have vision of the delivery room
+                const links = (Game.rooms[creep.memory.deliveryRoom].find(FIND_MY_STRUCTURES, {filter: { structureType: STRUCTURE_LINK }}));
+                if(links.length === 0)
+                {
+                    creep.say('🛑NM PANIC🛑');
+                    return;
+                }
+
+                const sourcePos = new RoomPosition(Memory.rooms[creep.memory.harvestRoom].sources[creep.memory.sourceIndex].x,
+                                                   Memory.rooms[creep.memory.harvestRoom].sources[creep.memory.sourceIndex].y,
+                                                   creep.memory.harvestRoom);
+
+                let bestPath = null;
+                let bestPathCost = 999999;
+                let nearestLink = null;
+                for(let i = 0, l = links.length; i < l; ++i)
+                {
+                    const result = this.find_distance(sourcePos, links[i].pos);
+                    if (result.cost < bestPathCost)
+                    {
+                        bestPathCost = result.cost;
+                        bestPath = result;
+                        nearestLink = links[i];
+                    }
+                }
+                // debug
+                console.log("bestPath:\n" + ex(bestPath));
+
+                targetLink = nearestLink;
+                creep.memory.targetLinkId = nearestLink.id;
+            }
+
+            if (!creep.pos.inRangeTo(targetLink.pos, 1))
             {
                 if (!creep.fatigue)
                 {
-                    creep.moveTo(target.pos, {visualizePathStyle: {stroke: '#FF00FF'}});
+                    creep.moveTo(targetLink.pos, {visualizePathStyle: {stroke: '#FF00FF'}});
                 }
             }
             else
             {
-                const transferResult = creep.transfer(target, RESOURCE_ENERGY);
+                const transferResult = creep.transfer(targetLink, RESOURCE_ENERGY);
                 if (transferResult === OK || transferResult === ERR_NOT_ENOUGH_RESOURCES)
                 {
                     creep.memory.working = true;
@@ -163,6 +194,64 @@ var roleNeighbourMiner = {
             creep.memory.sourceIndex = i;
             return;
         }
+    },
+
+
+    // TODO: Cache CostMatrix result.
+    /**
+     *
+     * @param {RoomPosition} origin - The start position.
+     * @param {object} destination - A goal or an array of goals. If more than one goal is supplied then the cheapest path found out of all the goals will be returned. A goal is either a RoomPosition or an object as defined below.
+     Important: Please note that if your goal is not walkable (for instance, a source) then you should set range to at least 1 or else you will waste many CPU cycles searching for a target that you can't walk on.
+
+     pos
+     RoomPosition
+     The target.
+     range
+     number
+     Range to pos before goal is considered reached. The default is 0.
+     * @return {{path:Array<RoomPosition>,opts:number,cost:number,incomplete:boolean}} An object containing: path - An array of RoomPosition objects; ops - Total number of operations performed before this path was calculated; cost - The total cost of the path as derived from plainCost, swampCost and any given CostMatrix instances; incomplete - If the pathfinder fails to find a complete path, this will be true. Note that path will still be populated with a partial path which represents the closest path it could find given the search parameters.
+     */
+    find_distance: function(origin, destination)
+    {
+        return PathFinder.search(
+            origin,
+            { pos: destination, range:1 },
+            {
+                // We need to set the defaults costs higher so that we
+                // can set the road cost lower in `roomCallback`
+                plainCost: 2,
+                swampCost: 10,
+
+                roomCallback: function(roomName)
+                {
+
+                    let room = Game.rooms[roomName];
+                    // In this example `room` will always exist, but since
+                    // PathFinder supports searches which span multiple rooms
+                    // you should be careful!
+                    if (!room) return;
+                    let costs = new PathFinder.CostMatrix;
+
+                    room.find(FIND_STRUCTURES).forEach(function(struct)
+                    {
+                        if (struct.structureType === STRUCTURE_ROAD)
+                        {
+                            // Favor roads over plain tiles
+                            costs.set(struct.pos.x, struct.pos.y, 1);
+                        }
+                        else if (struct.structureType !== STRUCTURE_CONTAINER &&
+                            (struct.structureType !== STRUCTURE_RAMPART || !struct.my))
+                        {
+                            // Can't walk through non-walkable buildings
+                            costs.set(struct.pos.x, struct.pos.y, 0xff);
+                        }
+                    });
+
+                    return costs;
+                },
+            }
+        );
     }
 }
 
