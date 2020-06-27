@@ -116,20 +116,48 @@ var roleHauler = {
                 }
             }
 
-            const targets = creep.room.find(FIND_MY_STRUCTURES,
-            {
-                filter: (structure) =>
-                {
-                    return (structure.structureType === STRUCTURE_EXTENSION ||
-                            structure.structureType === STRUCTURE_SPAWN ||
-                            structure.structureType === STRUCTURE_TOWER) && structure.energy < structure.energyCapacity;
-                }
-            });
+            let potentialDeliveryTargets = null;
 
-            if(targets.length > 0)
+            // Check if there's any hostiles in the room. If so, fill towers as top priority.
+            const hostiles = creep.room.find(FIND_HOSTILE_CREEPS);
+            if (hostiles.length > 0)
+            {
+                potentialDeliveryTargets = creep.room.find(FIND_MY_STRUCTURES,
+                    {
+                        filter: (structure) =>
+                        {
+                            return (structure.structureType === STRUCTURE_TOWER) && structure.energy < structure.energyCapacity;
+                        }
+                    });
+            }
+
+            if (potentialDeliveryTargets === null)
+            {
+                // If we have more than 80% energy allocated, fill towers with the same priority.
+                if (creep.room.energyAvailable > creep.room.energyCapacityAvailable * 0.8)
+                {
+                    potentialDeliveryTargets = creep.room.find(FIND_MY_STRUCTURES,
+                        {
+                            filter: (structure) => (structure.structureType === STRUCTURE_EXTENSION ||
+                                                    structure.structureType === STRUCTURE_SPAWN ||
+                                                    structure.structureType === STRUCTURE_TOWER) && structure.energy < structure.energyCapacity
+                        });
+                }
+                else // Less than 80%, only fill towers up to 40% (For immediate response, in case of an emergency)
+                {
+                    potentialDeliveryTargets = creep.room.find(FIND_MY_STRUCTURES,
+                        {
+                            filter: (structure) =>  ((structure.structureType === STRUCTURE_EXTENSION ||
+                                                      structure.structureType === STRUCTURE_SPAWN) && structure.energy < structure.energyCapacity) ||
+                                                    (structure.structureType === STRUCTURE_TOWER && structure.energy < structure.energyCapacity * 0.4)
+                        });
+                }
+            }
+
+            if(potentialDeliveryTargets.length > 0)
             {
                 // TODO: Should we remove towers from this selection?
-                const target = creep.pos.findClosestByPath(targets);
+                const target = creep.pos.findClosestByPath(potentialDeliveryTargets);
                 const transferResult = creep.transfer(target, RESOURCE_ENERGY);
                 if(transferResult === ERR_NOT_IN_RANGE)
                 {

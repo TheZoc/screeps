@@ -86,7 +86,9 @@ var roleBuilder = {
                 if (damagedStructure)
                 {
                     let closestMyDamagedStructure = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
-                        filter: (structure) => structure.hits < structure.hitsMax * 0.9
+                        filter: (structure) => (structure.structureType !== STRUCTURE_RAMPART && structure.hits < structure.hitsMax * 0.9) ||
+                                               (structure.structureType === STRUCTURE_RAMPART && structure.hits < structure.hitsMax * 0.01) // don't heal ramparts over 1% hp
+
                     });
                     if (closestMyDamagedStructure)
                     {

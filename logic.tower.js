@@ -24,10 +24,14 @@ var logicTower =
                 }
                 else
                 {
+                    // Only repair if the tower has more than 80% energy!
+                    if (towers[i].store.getUsedCapacity(RESOURCE_ENERGY) > towers[i].store.getUsedCapacity(RESOURCE_ENERGY) * 0.8)
+                        return;
+
                     // No threat? Repair damaged structures
                     let closestOwnedDamagedStructure = towers[i].pos.findClosestByRange(FIND_MY_STRUCTURES, {
                         filter: (structure) => (structure.structureType !== STRUCTURE_RAMPART && structure.hits < structure.hitsMax) ||
-                                               (structure.structureType === STRUCTURE_RAMPART && structure.hits < structure.hitsMax * 0.01)
+                                               (structure.structureType === STRUCTURE_RAMPART && structure.hits < structure.hitsMax * 0.01) // don't heal ramparts over 1% hp
                     });
 
                     if(closestOwnedDamagedStructure)
