@@ -45,8 +45,17 @@ var utilRoadPlanner =
      * This will store a path on `this.pathfinderResults` starting on a neighbor cell
      * from origin and ending in a neighbor cell in destination.
      *
-     * @param {RoomPosition} origin       - The initial coordinate for the search
-     * @param {RoomPosition} destination  - The final coordinate for the search
+     * @param {RoomPosition} origin - The start position.
+     * @param {object} destination - A goal or an array of goals. If more than one goal is supplied then the cheapest path found out of all the goals will be returned. A goal is either a RoomPosition or an object as defined below.
+     Important: Please note that if your goal is not walkable (for instance, a source) then you should set range to at least 1 or else you will waste many CPU cycles searching for a target that you can't walk on.
+
+     pos
+     RoomPosition
+     The target.
+     range
+     number
+     Range to pos before goal is considered reached. The default is 0.
+     * @return {{path:Array<RoomPosition>,opts:number,cost:number,incomplete:boolean}} An object containing: path - An array of RoomPosition objects; ops - Total number of operations performed before this path was calculated; cost - The total cost of the path as derived from plainCost, swampCost and any given CostMatrix instances; incomplete - If the pathfinder fails to find a complete path, this will be true. Note that path will still be populated with a partial path which represents the closest path it could find given the search parameters.
      */
     plan: function(origin, destination)
     {
