@@ -11,8 +11,8 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-// Game.spawns['Spawn1'].spawnCreep([MOVE,MOVE,WORK,WORK,CARRY,CARRY,CARRY,CARRY], 'neighbourminer', {memory: {role: 'neighbourminer', room: 'W8N4'}});
-// Game.spawns['Spawn1'].spawnCreep([MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY], 'neighbourminer', {memory: {role: 'neighbourminer', room: 'W8N4'}});
+// Game.spawns['Spawn1'].spawnCreep([MOVE,MOVE,WORK,WORK,CARRY,CARRY,CARRY,CARRY], 'neighbourminer', {memory: {role: 'neighbourminer', harvestRoom: 'W8N4', deliveryRoom: 'W7N4'}});
+// Game.spawns['Spawn1'].spawnCreep([MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY], 'neighbourminer', {memory: {role: 'neighbourminer', harvestRoom: 'W8N4', deliveryRoom: 'W7N4'}});
 
 // Harvest a neighbor room resource and put it in the main link
 
@@ -32,17 +32,36 @@ var roleNeighbourMiner = {
             if (creep.store.getUsedCapacity(RESOURCE_ENERGY) < creep.store.getCapacity(RESOURCE_ENERGY))
             {
                 let targetSource = null;
-                if (creep.memory.targetSource !== undefined)
+                if (creep.memory.targetSourceId !== undefined)
                 {
-                    targetSource = Game.getObjectById(creep.memory.targetSource);
+                    targetSource = Game.getObjectById(creep.memory.targetSourceId);
+                }
+                else
+                {
+                    // Check if we already visited this room and initialized it's memory (Check logic.memoryinit.js)
+                    if(Memory.rooms[creep.memory.harvestRoom])
+                    {
+                        this.pick_harvest_target(creep);
+                        targetSource = Game.getObjectById(creep.memory.targetSourceId);
+                    }
                 }
 
-                if (targetSource !== null)
+                // targetSource can still be null, if we don't have visibility of the room.
+                if (targetSource !== null ||
+                        (creep.memory.targetSourceId !== null &&
+                         creep.memory.targetSourceId !== undefined))
                 {
-                    if (!creep.pos.inRangeTo(targetSource.pos, 1))
+                    const sourcePos = new RoomPosition(Memory.rooms[creep.memory.harvestRoom].sources[creep.memory.sourceIndex].x,
+                                                       Memory.rooms[creep.memory.harvestRoom].sources[creep.memory.sourceIndex].y,
+                                                       creep.memory.harvestRoom);
+
+                    let inPosition = (targetSource !== null) ? creep.pos.inRangeTo(targetSource, 1)
+                                                             : creep.pos.isEqualTo(sourcePos);
+
+                    if (!inPosition)
                     {
                         if (!creep.fatigue)
-                            creep.moveTo(targetSource.pos, {visualizePathStyle: {stroke: '#FF00FF'}});
+                            creep.moveTo(sourcePos, {visualizePathStyle: {stroke: '#FF00FF'}});
                     }
                     else
                     {
@@ -51,25 +70,16 @@ var roleNeighbourMiner = {
                 }
                 else
                 {
-                    if (creep.room.name !== creep.memory.room) // This will make the creep freak out and wobble between rooms. Still, it's enough to view the room objects.
+                    // If we're here and don't have a target source and no visibility, move to the target room.
+                    if (creep.room.name !== creep.memory.harvestRoom) // This will make the creep freak out and wobble between rooms. Still, it's enough to view the room objects.
                     {
-                        const exitDir = creep.room.findExitTo(creep.memory.room);
+                        const exitDir = creep.room.findExitTo(creep.memory.harvestRoom);
                         const exit = creep.pos.findClosestByRange(exitDir);
                         creep.moveTo(exit);
                     }
-                    else if (creep.room.name === creep.memory.room)
+                    else if (creep.room.name === creep.memory.harvestRoom)
                     {
-                        const roomSources = Memory.rooms[creep.memory.room].sources;
-                        for (let i = 0; i < roomSources.length; ++i)
-                        {
-                            let miner = Game.getObjectById(roomSources[i].harvester);
-                            if (miner !== null)
-                                continue;
-
-                            Memory.rooms[creep.memory.room].sources[i].harvester = creep.id;
-                            creep.memory.targetSource = roomSources[i].id;
-                            break;
-                        }
+                        this.pick_harvest_target(creep);
                     }
                     else
                     {
@@ -128,6 +138,30 @@ var roleNeighbourMiner = {
                     creep.memory.working = true;
                 }
             }
+        }
+    },
+
+
+    pick_harvest_target: function(creep)
+    {
+        const roomMemory = Memory.rooms[creep.memory.harvestRoom];
+        if(roomMemory === undefined)
+            return;
+
+        // If we're here, try to find an unused source, and assign ourselves to it.
+        const roomSources = roomMemory.sources;
+        for (let i = 0; i < roomSources.length; ++i)
+        {
+            let miner = Game.getObjectById(roomSources[i].harvester);
+
+            // NOTE: This will allow a single creep per source. Change this if needed in future.
+            if (miner !== null)
+                continue;
+
+            Memory.rooms[creep.memory.harvestRoom].sources[i].harvester = creep.id;
+            creep.memory.targetSourceId = roomSources[i].id;
+            creep.memory.sourceIndex = i;
+            return;
         }
     }
 }
