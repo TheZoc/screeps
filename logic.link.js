@@ -29,7 +29,6 @@ var logicLink =
                     if (links[i].pos.inRangeTo(room.storage, 1))
                     {
                         room.memory.links.storageLink   = links[i].id;
-                        room.memory.links.storageEnergy = links[i].store.getUsedCapacity(RESOURCE_ENERGY);
                     }
                     else
                     {
@@ -48,21 +47,12 @@ var logicLink =
                 const currentLink = links[i];
                 const availableStorage = storageLink.store.getFreeCapacity(RESOURCE_ENERGY);
                 const currentEnergy = currentLink.store.getUsedCapacity(RESOURCE_ENERGY);
-                if (currentEnergy > minimumTransfer && availableStorage > haulerCapacity && !currentLink.cooldown)
+                if (currentEnergy > minimumTransfer &&
+                    availableStorage > haulerCapacity &&
+                    !currentLink.cooldown)
                 {
-                    const initialEnergy = storageLink.store.getUsedCapacity(RESOURCE_ENERGY);
-
                     // Transfer our energy to the storage link.
-                    let transferResult = links[i].transferEnergy(storageLink);
-
-                    if (transferResult === OK)
-                    {
-                        const deltaEnergy = storageLink.store.getUsedCapacity(RESOURCE_ENERGY) - initialEnergy;
-
-                        // This is used to multiple creeps from trying to get more energy than it's available.
-                        // Check hauler logic ;)
-                        room.memory.links.storageEnergy += deltaEnergy;
-                    }
+                    currentLink.transferEnergy(storageLink);
                 }
             }
         },

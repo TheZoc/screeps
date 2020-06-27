@@ -51,7 +51,7 @@ var roleHauler = {
             if(withdrawResult === ERR_NOT_IN_RANGE)
             {
                 if (!creep.fatigue)
-                    creep.moveTo(Game.getObjectById(creep.memory.fromStructure), {visualizePathStyle: {stroke: '#FFEA88'}});
+                    creep.moveTo(withdrawSource, {visualizePathStyle: {stroke: '#FFEA88'}});
             }
             else if (withdrawResult === ERR_NOT_ENOUGH_RESOURCES)
             {
@@ -90,11 +90,6 @@ var roleHauler = {
                 }
                 creep.memory.withdraw = false;
                 delete creep.memory["fromStructure"];
-
-                // Handle Link accumulator
-                let reservedDifference = creep.memory["reservedEnergy"] - deltaEnergy;
-                creep.room.memory.links.storageEnergy -= reservedDifference;
-                delete creep.memory["reservedEnergy"];
             }
             else
             {
@@ -204,15 +199,18 @@ var roleHauler = {
         if (creep.room.memory.links.storageLink !== undefined)
         {
             const creepFreeCapacity = creep.store.getFreeCapacity(RESOURCE_ENERGY);
-            if (creep.room.memory.links.storageEnergy >= creepFreeCapacity)
-            {
-                const reservedEnergy = Math.min(creepFreeCapacity, creep.room.memory.links.storageEnergy);
-                creep.room.memory.links.storageEnergy -= reservedEnergy;       // Reserve the energy from the link (Check logic.link.js)
-                creep.memory.reservedEnergy = reservedEnergy;
+            const storageLink = Game.getObjectById(creep.room.memory.links.storageLink);
+            const linkUsedCapacity = storageLink.store.getUsedCapacity(RESOURCE_ENERGY);
 
-                creep.memory.fromStructure = creep.room.memory.links.storageLink; // Target the link
-                creep.memory.transferFromLink = true; // Indicates we're transferring from the link, to speed up the process
-                return true;
+            if (linkUsedCapacity > 0)
+            {
+                // If it has at least half of the supported capacity, transfer it - or if we're already right next to it
+                if (linkUsedCapacity >= creepFreeCapacity * 0.5 || creep.pos.inRangeTo(storageLink, 1))
+                {
+                    creep.memory.fromStructure = creep.room.memory.links.storageLink; // Target the link
+                    creep.memory.transferFromLink = true; // Indicates we're transferring from the link, to speed up the process
+                    return true;
+                }
             }
         }
 
