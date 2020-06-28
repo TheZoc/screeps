@@ -61,7 +61,8 @@ var roleHauler = {
                     this.pick_resource_target(creep, true);
                 }
 
-                if (withdrawSource.id === creep.room.memory.links.storageLink)
+                // TODO: Make sure `creep.room.memory.links` always exists, adding it to `logic.memoryinit.js`
+                if (creep.room.memory.links !== undefined && withdrawSource.id === creep.room.memory.links.storageLink)
                 {
                     console.log("WARNING: Hauler attempted to get energy from empty link");
                     this.pick_resource_target(creep, true);

@@ -21,7 +21,7 @@ var logicLink =
             for(let i = 0, l = links.length; i < l; ++i)
             {
                 if (room.memory.links === undefined)
-                    room.memory.links = {}
+                    room.memory.links = {} // TODO: Move this to logic.memoryinit
 
                 // Check if we have a storage link (i.e. destination link)
                 if (room.memory.links.storageLink === undefined)
