@@ -224,7 +224,7 @@ var roleHauler = {
     pick_resource_target: function(creep, skipStorage = false)
     {
         // Quick hack - transfer the link
-        if (creep.room.memory.links.storageLink !== undefined)
+        if (creep.room.memory.links !== undefined && creep.room.memory.links.storageLink !== undefined)
         {
             const creepFreeCapacity = creep.store.getFreeCapacity(RESOURCE_ENERGY);
             const storageLink = Game.getObjectById(creep.room.memory.links.storageLink);
