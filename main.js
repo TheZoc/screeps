@@ -100,17 +100,21 @@ module.exports.loop = function ()
         const targets = room.find(FIND_MY_CONSTRUCTION_SITES);
 
         // Find structures that are damaged
-        const closestMyDamagedStructure = room.find(FIND_MY_STRUCTURES, {
-            filter: (structure) => structure.hits < structure.hitsMax
+        const myDamagedStructure = room.find(FIND_MY_STRUCTURES, {
+            filter: (structure) => (structure.structureType !== STRUCTURE_RAMPART && structure.hits < structure.hitsMax * 0.9) ||
+                (structure.structureType === STRUCTURE_RAMPART && structure.hits < structure.hitsMax * 0.01) // don't heal ramparts over 1% hp
         });
 
         // Find walls that need repairs
         // IMPORTANT: The 0.01 here must be the same value used in role.builder.js
-        const closestWallDamagedStructure = room.find(FIND_STRUCTURES, {
+        const wallDamagedStructure = room.find(FIND_STRUCTURES, {
             filter: (structure) => structure.hits < structure.hitsMax * 0.01 && structure.structureType === STRUCTURE_WALL
         });
 
-        activateBuilder[roomName] = targets.length || closestMyDamagedStructure.length || closestWallDamagedStructure.length;
+        // Debug
+        // console.log("targets.length: " + targets.length + " - closestMyDamagedStructure.length: " + myDamagedStructure.length + " - closestWallDamagedStructure.length: " + wallDamagedStructure.length);
+
+        activateBuilder[roomName] = targets.length || myDamagedStructure.length || wallDamagedStructure.length;
     }
 
     // Go through all the creeps, check their role and run their behavior function
@@ -139,9 +143,13 @@ module.exports.loop = function ()
         else if(creep.memory.role === 'builder')
         {
             if (activateBuilder[creep.room.name])
+            {
                 roleBuilder.run(creep);
+            }
             else
+            {
                 roleUpgrader.run(creep);
+            }
         }
         else if(creep.memory.role === 'scout')
         {
