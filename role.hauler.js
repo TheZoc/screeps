@@ -55,7 +55,7 @@ var roleHauler = {
             }
             else if (withdrawResult === ERR_NOT_ENOUGH_RESOURCES)
             {
-                if (withdrawSource.id === creep.room.storage.id)
+                if (creep.room.storage !== undefined && withdrawSource.id === creep.room.storage.id)
                 {
                     // If we were fetching from storage and it's now empty, get resources from somewhere else.
                     this.pick_resource_target(creep, true);

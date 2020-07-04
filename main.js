@@ -53,7 +53,7 @@ module.exports.loop = function ()
     {
         if (Game.cpu.bucket >= 5000)
         {
-            console.log("Bucket over 5000, generating pixel.")
+            console.log("Bucket over 5000, generating pixel.");
             Game.cpu.generatePixel();
         }
     }
