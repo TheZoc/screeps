@@ -88,7 +88,7 @@ var roleUpgrader = {
                         let withdrawResult = creep.withdraw(target, RESOURCE_ENERGY);
                         if(withdrawResult === ERR_NOT_IN_RANGE)
                         {
-                            creep.say('🔄 h ' + creep.memory.targetSource);
+                            creep.say('🔄 w ' + creep.memory.targetSource);
                             if (!creep.fatigue)
                                 creep.moveTo(target, {visualizePathStyle: {stroke: '#ffaa00'}});
                         }
@@ -167,26 +167,67 @@ var roleUpgrader = {
         // A room can only have 2 sources max
         if (sortedSources.length === 1)
         {
+            // Just harvest from the only source in the room.
             creep.memory.targetSource = sortedSources[0].id;
         }
         else if (sortedSources.length === 2)
         {
-            // Check if one of the sources has more than 80% energy than the other. If so, redirect creeps that way.
-            // This could get weird with low energy values available.
-            if (sortedSources[0].energy > sortedSources[1].energy * 0.8)
+            // See if there's an available space near the source to be able to harvest. If there's just a
+            // single one, assume it's for the Static Harvester creep.
+            let allSourcesHarvestable = true;
+            let harvestableSources = Array();
+
+            for(let i = 0, l = sortedSources.length; i < l; ++i)
             {
-                creep.memory.targetSource = sortedSources[0].id;
+
+                const lookSource = creep.room.lookForAtArea(LOOK_TERRAIN,
+                    sortedSources[i].pos.y - 1,
+                    sortedSources[i].pos.x - 1,
+                    sortedSources[i].pos.y + 1,
+                    sortedSources[i].pos.x + 1,
+                    true);
+
+                let freeSlotsSource = _.filter(lookSource, function (obj)
+                {
+                    return (obj["terrain"] !== "wall") &&
+                           (obj["terrain"] !== "swamp");
+                });
+
+                if (freeSlotsSource.length > 1)
+                {
+                    harvestableSources.push(i);
+                }
             }
-            else if (sortedSources[1].energy > sortedSources[0].energy * 0.8)
+
+            if (harvestableSources.length === 2)
             {
-                creep.memory.targetSource = sortedSources[1].id;
+                // Check if one of the sources has more than 80% energy than the other. If so, redirect creeps that way.
+                // This could get weird with low energy values available.
+                if (sortedSources[0].energy > sortedSources[1].energy * 0.8)
+                {
+                    creep.memory.targetSource = sortedSources[0].id;
+                }
+                else if (sortedSources[1].energy > sortedSources[0].energy * 0.8)
+                {
+                    creep.memory.targetSource = sortedSources[1].id;
+                }
+                else
+                {
+                    // If we're here, they're pretty close. Use game tick to add randomness. (Risky!)
+                    creep.memory.targetSource = sortedSources[Game.time % 2].id;
+                }
+            }
+            else if (harvestableSources.length === 1)
+            {
+                creep.memory.targetSource = sortedSources[harvestableSources[0]].id;
             }
             else
             {
-                // If we're here, they're pretty close. Use game tick to add randomness. (Risky!)
-                creep.memory.targetSource = sortedSources[Game.time % 2].id;
+                // Haven't encountered this issue yet.
+                // TODO: Decide strategy.
+                console.log("BIG PANIC FOR THE UPGRADER");
+                creep.say("BIG PANIC FOR THE UPGRADER");
             }
-            return;
         }
         else
         {
