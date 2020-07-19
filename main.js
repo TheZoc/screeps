@@ -5,6 +5,7 @@
 //
 // A small bot with big ambitions :)
 //////////////////////////////////////////////////////////////////////////////
+'use strict';
 
 // Initialization
 global.util             = require('util');
