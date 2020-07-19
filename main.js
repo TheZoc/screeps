@@ -12,8 +12,11 @@ global.util             = require('util');
 global.ex               = (x) => JSON.stringify(x, null, 2);
 global.FlatQueue        = require('datastructure.priorityqueue');
 
+// Utilities
 require('util.ext.prototype.roomPosition');
+const constants         = require("util.constants");
 
+// Screeps specific code
 var logicSpawn          = require('logic.spawn');
 var logicMemoryInit     = require('logic.memoryinit');
 var logicMemory         = require('logic.memory');
@@ -122,19 +125,20 @@ module.exports.loop = function ()
     // Go through all the creeps, check their role and run their behavior function
     for(const [creepName, creep] of Object.entries(Game.creeps))
     {
-        if(creep.memory.role === 'hauler')
+        const role = creep.memory.role;
+        if(role === 'hauler' || role === constants.ROLE_TRANSPORTER)
         {
             roleHauler.run(creep);
         }
-        else if(creep.memory.role === 'staticHarvester')
+        else if(role === 'staticHarvester' || role === constants.ROLE_STATIC_HARVESTER)
         {
             roleStaticHarvester.run(creep);
         }
-        else if(creep.memory.role === 'upgrader')
+        else if(role === 'upgrader' || role === constants.ROLE_UPGRADER)
         {
                 roleUpgrader.run(creep);
         }
-        else if(creep.memory.role === 'upgradernewroom')
+        else if(role === 'upgradernewroom')
         {
             if (creep.pos.roomName !== 'W1N4')
                 if (!creep.fatigue)
@@ -142,7 +146,7 @@ module.exports.loop = function ()
             else
                 roleUpgrader.run(creep);
         }
-        else if(creep.memory.role === 'builder')
+        else if(role === 'builder' || role === constants.ROLE_BUILDER)
         {
             if (activateBuilder[creep.room.name])
             {
@@ -153,11 +157,11 @@ module.exports.loop = function ()
                 roleUpgrader.run(creep);
             }
         }
-        else if(creep.memory.role === 'scout')
+        else if(role === 'scout' || role === constants.ROLE_SCOUT)
         {
             roleScout.run(creep);
         }
-        else if(creep.memory.role === 'neighbourminer')
+        else if(role === 'neighbourminer' || role === constants.ROLE_REMOTE_HARVESTER)
         {
             roleNeighbourMiner.run(creep);
         }
