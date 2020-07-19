@@ -36,6 +36,8 @@ var roleNeighbourMiner  = require('role.neighbourminer');
 var utilVisualizer      = require('util.visualizer');
 var utilRoadPlanner     = require('util.roadplanner');
 
+// Task manager
+var taskManager         = require('logic.taskmanager')
 
 // This is a WIP road planner. It is planned outside of the loop to save cycles.
 // It doesn't work on it's own, needing user modification to use it.
@@ -66,6 +68,20 @@ module.exports.loop = function ()
 
     // Start by cleaning up the memory
     logicMemory.cleanup();
+
+    /*
+    // Task manager test
+    let tasks = new Map();
+    for(let k in Game.rooms)
+    {
+        tasks[Game.rooms[k].name] = new FlatQueue();
+        taskManager.gather_room_tasks(Game.rooms[k], tasks[Game.rooms[k].name]);
+
+        const dump = tasks[Game.rooms[k].name].dumpNicely();
+        if (dump !== "")
+            console.log(dump);
+    }
+    //*/
 
     // Room utilities
     for(let k in Game.rooms)
