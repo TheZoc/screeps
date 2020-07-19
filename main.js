@@ -23,6 +23,7 @@ var logicMemory         = require('logic.memory');
 var logicTower          = require('logic.tower');
 var logicLink           = require('logic.link');
 var logicExtensions     = require('logic.extensions');
+var logicSpawnQueue     = require('logic.spawnqueue')
 
 var roleHauler          = require('role.hauler');
 var roleUpgrader        = require('role.upgrader');
