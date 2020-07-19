@@ -17,7 +17,12 @@ var logicSpawnQueue = {
     run: function(room)
     {
         // TODO: Add a "Last Time Executed" condition here
-        this.spawnQueue = new FlatQueue({});
+        const spawns = room.find(FIND_MY_STRUCTURES, { filter: { structureType: STRUCTURE_SPAWN } });
+        if (spawns < 1)
+            return;
+
+        Memory.rooms[room.name].spawnQueue = {};
+        this.spawnQueue = new FlatQueue(Memory.rooms[room.name].spawnQueue);
 
         this.check_static_harvester(room);
         this.check_transporter(room);

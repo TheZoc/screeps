@@ -61,6 +61,15 @@ class FlatQueue
     }
 
     /**
+     * Return the size of the priority queue
+     * @return {number}
+     */
+    getLength()
+    {
+        return this.memory_structure.length;
+    }
+
+    /**
      * Add a new element to the priority queue
      *
      * @param priorityNum {Number} This is the priority number of the data added. Smaller elements have higher priority.

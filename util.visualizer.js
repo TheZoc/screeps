@@ -5,6 +5,8 @@
 // currently not used functions.
 //////////////////////////////////////////////////////////////////////////////
 
+const constants = require("util.constants");
+
 var utilVisualizer =
 {
     /**
@@ -18,6 +20,7 @@ var utilVisualizer =
         // Experimental stuff
         // this.draw_centroid(room);
         // this.draw_centroid2(room);
+        this.draw_spawn_queue(room);
     },
 
     /**
@@ -147,6 +150,107 @@ var utilVisualizer =
                          {fill: '#C57A1D', stroke: '#FF8C00', strokeWidth: '0.05', opacity: '0.2'});
 
         room.visual.text("C2", x, y + 0.25, {color: '#FF8C00', font: 0.8});
+    },
+
+    /**
+     * Draw the spawn queue
+     *
+     * @param room {Room}
+     */
+    draw_spawn_queue: function(room)
+    {
+        const rectStartX = 26;
+        const rectStartY = 0;
+        const rectWidth = 23;
+        const rectHeight = 5;
+        const fontSize = 0.6;
+        const textStyle = {font: fontSize + " Roboto", align: "left"};
+        const headerTextStyle = {color: '#E0E0E0', font: fontSize + " Roboto", align: "left"};
+        const initialOffsetY = 1;
+        let offsetY = initialOffsetY; // Increased for each entry
+        let offsetX = 0.5;
+
+        // Background rectangle
+        room.visual.rect(rectStartX,
+            rectStartY,
+            rectWidth,
+            rectHeight,
+            {fill: '#00897B', stroke: '#00ACC1', strokeWidth: '0.05', opacity: '0.1'});
+
+        // Auxiliary lambda function to print the header
+        const printHeader = function() {
+            room.visual.text("Prio", rectStartX + offsetX,     rectStartY + offsetY, headerTextStyle);
+            room.visual.text("Room", rectStartX + offsetX + 2, rectStartY + offsetY, headerTextStyle);
+            room.visual.text("Role", rectStartX + offsetX + 5, rectStartY + offsetY, headerTextStyle);
+            room.visual.text("Cost", rectStartX + offsetX + 7, rectStartY + offsetY, headerTextStyle);
+            room.visual.text("Name", rectStartX + offsetX + 9, rectStartY + offsetY, headerTextStyle);
+        }
+
+        printHeader();
+        offsetY += fontSize;
+
+        // Spawn queue data
+        let spawnQueueCopy = new FlatQueue({
+            data: [...room.memory.spawnQueue.data],
+            priority: [...room.memory.spawnQueue.priority],
+            length: room.memory.spawnQueue.length,
+        })
+
+        let entry_no = 0;
+        while (spawnQueueCopy.getLength() > 0)
+        {
+            const priority = spawnQueueCopy.peekPriority();
+            const data = spawnQueueCopy.pop();
+
+            let totalCost = 0;
+            for (let i = 0; i <  data.bodyParts.length; ++i)
+            {
+                totalCost += BODYPART_COST[data.bodyParts[i]];
+            }
+
+            let entryTextStyle = textStyle;
+            // Color based on the priority
+            switch(priority)
+            {
+                case constants.PRIORITY_EMERGENCY:
+                    entryTextStyle.color = "#E53935";
+                    break;
+                case constants.PRIORITY_IMMEDIATE:
+                    entryTextStyle.color = "#F4511E";
+                    break;
+                case constants.PRIORITY_VERY_HIGH:
+                    entryTextStyle.color = "#FFB300";
+                    break;
+                case constants.PRIORITY_HIGH:
+                    entryTextStyle.color = "#FDD835";
+                    break;
+                case constants.PRIORITY_NORMAL:
+                    entryTextStyle.color = "#7CB342";
+                    break;
+                case constants.PRIORITY_LOW:
+                    entryTextStyle.color = "#43A047";
+                    break;
+                default:
+                    entryTextStyle.color = "#8E24AA";
+            }
+
+            room.visual.text(priority,         rectStartX + offsetX,     rectStartY + offsetY, entryTextStyle);
+            room.visual.text(data.memory.room, rectStartX + offsetX + 2, rectStartY + offsetY, entryTextStyle);
+            room.visual.text(data.memory.role, rectStartX + offsetX + 5, rectStartY + offsetY, entryTextStyle);
+            room.visual.text(totalCost,        rectStartX + offsetX + 7, rectStartY + offsetY, entryTextStyle);
+            room.visual.text(data.name,        rectStartX + offsetX + 9, rectStartY + offsetY, entryTextStyle);
+
+            // Every 6 entries, create a new column. WARNING: 3rd column will be hidden, since it's out of bounds (!)
+            ++entry_no;
+            if (entry_no % 6 === 0)
+            {
+                offsetX += 12;
+                offsetY = initialOffsetY;
+                printHeader();
+            }
+
+            offsetY += fontSize;
+        }
     }
 };
 

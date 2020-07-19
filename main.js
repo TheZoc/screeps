@@ -89,6 +89,9 @@ module.exports.loop = function ()
         // Initialize memory
         logicMemoryInit.run(Game.rooms[k]);
 
+        // Create the spawn queue for this room
+        logicSpawnQueue.run(Game.rooms[k]);
+
         // Attempt to create extensions in a X shape, per spawn/extension
         logicExtensions.run(Game.rooms[k]);
 
