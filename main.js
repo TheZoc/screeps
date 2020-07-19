@@ -10,6 +10,7 @@
 // Initialization
 global.util             = require('util');
 global.ex               = (x) => JSON.stringify(x, null, 2);
+global.FlatQueue        = require('datastructure.priorityqueue');
 
 require('util.ext.prototype.roomPosition');
 
