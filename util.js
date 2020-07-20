@@ -66,8 +66,25 @@ function spawn(targetSpawn, bodyParts, name, memory, prettyName, offsetY)
                                   {memory: memory});
 }
 
+/**
+ * Given an Array of body parts, returns the total resource cost for it.
+ *
+ * @param bodyParts {Array} Array of body parts of a creep
+ * @return {number} Total cost
+ */
+function calculateBodyPartsCost(bodyParts)
+{
+    let totalCost = 0;
+    for (let i = 0; i < bodyParts.length; ++i)
+    {
+        totalCost += BODYPART_COST[bodyParts[i]];
+    }
+    return totalCost;
+}
+
 module.exports = {
     maxRes,
     minRes,
     spawn,
+    calculateBodyPartsCost,
 };

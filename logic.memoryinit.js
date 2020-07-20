@@ -83,6 +83,7 @@ var logicMemoryInit = {
 
         targetRoom.memory.nextUpdate = {};
         targetRoom.memory.nextUpdate.extensions = 0;
+        targetRoom.memory.nextUpdate.spawnQueue = 0;
     }
 };
 

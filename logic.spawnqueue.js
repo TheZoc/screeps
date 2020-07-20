@@ -8,7 +8,7 @@
 global.FlatQueue        = require('datastructure.priorityqueue');
 const constants         = require('util.constants');
 
-var logicSpawnQueue = {
+let logicSpawnQueue = {
     /**
      * Process all the rules for a room and create a spawn queue
      *
@@ -16,13 +16,22 @@ var logicSpawnQueue = {
      */
     run: function(room)
     {
-        // TODO: Add a "Last Time Executed" condition here
+        // Only run this function if enough time has passed since the last update (10 ticks).
+        if (Game.time < room.memory.nextUpdate.extensions)
+            return;
+        room.memory.nextUpdate.extensions = Game.time + 10;
+
         const spawns = room.find(FIND_MY_STRUCTURES, { filter: { structureType: STRUCTURE_SPAWN } });
         if (spawns < 1)
             return;
 
         Memory.rooms[room.name].spawnQueue = {};
         this.spawnQueue = new FlatQueue(Memory.rooms[room.name].spawnQueue);
+
+        // This is needed multiple times, so I'm caching it here.
+        this.listContainers = room.find(FIND_STRUCTURES, {
+            filter: (structure) => { return structure.structureType === STRUCTURE_CONTAINER; }
+        });
 
         this.check_static_harvester(room);
         this.check_transporter(room);
@@ -39,7 +48,7 @@ var logicSpawnQueue = {
         // Calculate the best available body for the static harvester
 
         // For the static harvester, 5 parts are enough to drain the source completely, before it respawns.
-        // TODO: Consider if it's a better idea to harvest super fast to avoid other workers from waiting.
+        // Attempting to use max 10 parts, to have more resources available sooner.
         const maxWorkParts = 10;
 
         // Assemble the creep blueprint
@@ -51,9 +60,10 @@ var logicSpawnQueue = {
             staticHarvesterParts.push(WORK); // 100 per part
         staticHarvesterParts.push(CARRY); // 50 energy
 
-
+        const sourcesInTheRoom = room.memory.sources.length;
+        let neededHarvesters = 0;
         // Search for available sources, without a static harvester creep assigned
-        for (let i = 0, l = room.memory.sources.length; i < l; ++i)
+        for (let i = 0; i < sourcesInTheRoom; ++i)
         {
             if (room.memory.sources[i].harvester)
             {
@@ -76,7 +86,7 @@ var logicSpawnQueue = {
                         const newStaticHarvesterName = constants.ROLE_STATIC_HARVESTER + (Game.time % 15000).toString(36);
                         const newCreep = {
                             bodyParts: staticHarvesterParts,
-                            name: newStaticHarvesterName, // TODO: Maybe move this to the actual spawning function?
+                            name: newStaticHarvesterName, // Maybe move this to the actual spawning function?
                             memory: {
                                 role: constants.ROLE_STATIC_HARVESTER,
                                 source: i,
@@ -85,7 +95,7 @@ var logicSpawnQueue = {
                         }
 
                         this.spawnQueue.push(constants.PRIORITY_HIGH, newCreep);
-
+                        ++neededHarvesters;
 
                         // TODO: Adjust the memory when spawning this creep
                         // if (spawnResult === OK)
@@ -97,6 +107,48 @@ var logicSpawnQueue = {
                 }
             }
         }
+
+        // This might need to be adjusted if creating a Spawn in a room with a single source.
+        if (neededHarvesters === sourcesInTheRoom)
+        {
+            let totalCost = 0;
+            for (let i = 0; i <  staticHarvesterParts.length; ++i)
+            {
+                totalCost += BODYPART_COST[staticHarvesterParts[i]];
+            }
+
+            // If we have NO harvesters and not enough to spawn an upgraded harvester,
+            // queue up an "emergency" harvester with just the basic parts
+            if (totalCost > room.energyAvailable)
+            {
+                // If we have containers, focus on harvesting and repairing the best one.
+                let targetSource = 0;
+                if (this.listContainers.length > 0)
+                {
+                    let bestContainer = util.maxRes(this.listContainers);
+                    for(let i = 0, l = room.memory.sources.length; i < l; ++i)
+                    {
+                        if (room.memory.sources[i].id === bestContainer.id)
+                        {
+                            targetSource = i;
+                            break;
+                        }
+                    }
+                }
+
+                const newStaticHarvesterName = "ÊĤ" + (Game.time % 15000).toString(36);
+                const newCreep = {
+                    bodyParts: [MOVE,WORK,WORK,CARRY],
+                    name: newStaticHarvesterName,
+                    memory: {
+                        role: constants.ROLE_STATIC_HARVESTER,
+                        source: targetSource,
+                        room: room.name
+                    }
+                }
+                this.spawnQueue.push(constants.PRIORITY_VERY_HIGH - 1, newCreep);
+            }
+        }
     },
 
     /**
@@ -106,20 +158,16 @@ var logicSpawnQueue = {
     check_transporter: function(room)
     {
         // Only spawn transporters if we have containers!
-        // TODO: Check if it's necessary to run the "container find" here. Might be possible to have something like the hauler memory
-        const listContainers = room.find(FIND_STRUCTURES, { filter: (structure) => structure.structureType === STRUCTURE_CONTAINER });
-        if (listContainers.length === 0)
+        if (this.listContainers.length === 0)
             return;
 
-
-        // Limit the amount of [CARRY, CARRY, MOVE] added per hauler
+        // Limit the amount of [CARRY, CARRY, MOVE] added per transporter
         let maxPartsSet = 4;
 
         // Assemble the creep blueprint
-        // Minimum parts: [MOVE, MOVE, CARRY, CARRY]
-        const energyAvailable = room.energyCapacityAvailable - 200;  // Remove the mandatory 2*MOVE and CARRY parts
-        let transporterParts = [MOVE, MOVE, CARRY, CARRY]; // 100 energy
-
+        // Minimum parts: [CARRY, CARRY, MOVE]
+        const energyAvailable = room.energyCapacityAvailable - 150;  // Remove the mandatory MOVE and 2*CARRY parts
+        let transporterParts = [CARRY, CARRY, MOVE]; // 100 energy
 
         const setCost = BODYPART_COST[CARRY] * 2 + BODYPART_COST[MOVE]
         const desiredTransporterPartsSet = Math.min(Math.floor(energyAvailable / setCost), maxPartsSet);
@@ -141,7 +189,7 @@ var logicSpawnQueue = {
             const newTransporterName = constants.ROLE_TRANSPORTER + (Game.time % 15000).toString(36);
             const newCreep = {
                 bodyParts: transporterParts,
-                name: newTransporterName, // TODO: Maybe move this to the actual spawning function?
+                name: newTransporterName,
                 memory: {
                     role: constants.ROLE_TRANSPORTER,
                     source: i,
@@ -158,6 +206,40 @@ var logicSpawnQueue = {
             //     break;  // Break out of for loop, nothing else to be done here.
             // }
         }
+
+        const amountTransporters = _.filter(Game.creeps, (creep) => (creep.memory.role === 'hauler' || creep.memory.role === constants.ROLE_TRANSPORTER) && (creep.memory.room === room.name)).length;
+        if (amountTransporters === 0)
+        {
+            const totalCost = util.calculateBodyPartsCost(transporterParts);
+
+            // If we have NO transporters and not enough to spawn an upgraded transporter,
+            // queue up an "emergency" transporter with just the basic parts
+            if (totalCost > room.energyAvailable)
+            {
+                let bestContainer = util.maxRes(this.listContainers);
+                let targetSource  = 0;
+                for(let i = 0, l = room.memory.sources.length; i < l; ++i)
+                {
+                    if (room.memory.sources[i].id === bestContainer.id)
+                    {
+                        targetSource = i;
+                        break;
+                    }
+                }
+
+                const newEmergencyTransporterName = "ÊṪ" + (Game.time % 15000).toString(36);
+                const newCreep = {
+                    bodyParts: [MOVE,MOVE,CARRY,CARRY],
+                    name: newEmergencyTransporterName,
+                    memory: {
+                        role: constants.ROLE_TRANSPORTER,
+                        source: targetSource,
+                        room: room.name
+                    }
+                }
+                this.spawnQueue.push(constants.PRIORITY_VERY_HIGH, newCreep);
+            }
+        }
     },
 
     /**
@@ -166,7 +248,7 @@ var logicSpawnQueue = {
      */
     check_upgrader: function(room)
     {
-        const amountUpgrader = _.filter(Game.creeps, (creep) => (creep.memory.role === 'upgrader' ) && (creep.memory.room === room.name)).length;
+        const amountUpgrader = _.filter(Game.creeps, (creep) => (creep.memory.role === 'upgrader' || creep.memory.role === constants.ROLE_UPGRADER) && (creep.memory.room === room.name)).length;
         if (amountUpgrader >= constants.MAX_UPGRADERS_PER_ROOM)
             return;
 
@@ -204,7 +286,7 @@ var logicSpawnQueue = {
         const newUpgraderName = constants.ROLE_UPGRADER + (Game.time % 15000).toString(36);
         const newCreep = {
             bodyParts: desiredParts,
-            name: newUpgraderName, // TODO: Maybe move this to the actual spawning function?
+            name: newUpgraderName,
             memory: {
                 role: constants.ROLE_UPGRADER,
                 room: room.name
@@ -220,7 +302,7 @@ var logicSpawnQueue = {
      */
     check_builder: function(room)
     {
-        const amountBuilder = _.filter(Game.creeps, (creep) => (creep.memory.role === 'builder') && (creep.memory.room === room.name)).length;
+        const amountBuilder = _.filter(Game.creeps, (creep) => (creep.memory.role === 'builder' || creep.memory.role === constants.ROLE_BUILDER) && (creep.memory.room === room.name)).length;
 
         if (amountBuilder >= this.MAX_BUILDERS_PER_ROOM)
             return;
@@ -229,13 +311,16 @@ var logicSpawnQueue = {
         let desiredParts;
         let priority = constants.PRIORITY_NORMAL;
 
+        let newBuilderName;
         if(amountBuilder === 0 && room.energyAvailable < 300)
         {
             desiredParts = [MOVE, WORK, CARRY];
-            priority = constants.PRIORITY_VERY_HIGH;
+            priority = constants.PRIORITY_VERY_HIGH - 2;
+            newBuilderName = "ÊḂ" + (Game.time % 15000).toString(36);
         }
         else
         {
+            newBuilderName = constants.ROLE_BUILDER + (Game.time % 15000).toString(36);
             if (energyAvailable <= 300)
             {
                 desiredParts = [MOVE, MOVE, WORK, CARRY, CARRY];
@@ -267,17 +352,15 @@ var logicSpawnQueue = {
                 desiredParts.push(CARRY);
         }
 
-        const newBuilderName = constants.ROLE_BUILDER + (Game.time % 15000).toString(36);
         const newCreep = {
             bodyParts: desiredParts,
-            name: newBuilderName, // TODO: Maybe move this to the actual spawning function?
+            name: newBuilderName,
             memory: {
                 role: constants.ROLE_BUILDER,
                 room: room.name
             }
         }
         this.spawnQueue.push(priority, newCreep);
-
     },
 };
 

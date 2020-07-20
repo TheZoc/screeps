@@ -10,7 +10,7 @@ const constants = {
     // Base configuration - TODO: Move this to a better place
     MAX_TRANSPORTERS_PER_SOURCE : 2,
     MAX_UPGRADERS_PER_ROOM : 2,
-    MAX_BUILDERS_PER_ROOM : 4,
+    MAX_BUILDERS_PER_ROOM : 2,
 
     // Creep Roles
     ROLE_BUILDER          : 'B',
