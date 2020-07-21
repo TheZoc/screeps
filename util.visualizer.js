@@ -50,7 +50,7 @@ var utilVisualizer =
             {
                 let spawningCreep = Game.creeps[spawns[i].spawning.name];
                 spawns[i].room.visual.text(
-                    '🛠️' + spawningCreep.memory.role,
+                    '🏭️' + spawningCreep.memory.role,
                     spawns[i].pos.x + 1,
                     spawns[i].pos.y + 0.5,
                     {align: 'left', opacity: 0.8});
@@ -65,10 +65,10 @@ var utilVisualizer =
      */
     draw_creep_count: function(room)
     {
-        const staticHarvesterAmount = _.filter(Game.creeps, (creep) => (creep.memory.role === 'staticHarvester') && (creep.memory.room === room.name)).length;
-        const haulerAmount          = _.filter(Game.creeps, (creep) => (creep.memory.role === 'hauler')          && (creep.memory.room === room.name)).length;
-        const upgraderAmount        = _.filter(Game.creeps, (creep) => (creep.memory.role === 'upgrader')        && (creep.memory.room === room.name)).length;
-        const builderAmount         = _.filter(Game.creeps, (creep) => (creep.memory.role === 'builder')         && (creep.memory.room === room.name)).length;
+        const staticHarvesterAmount = _.filter(Game.creeps, (creep) => (creep.memory.role === 'staticHarvester' || creep.memory.role === constants.ROLE_STATIC_HARVESTER) && (creep.memory.room === room.name)).length;
+        const haulerAmount          = _.filter(Game.creeps, (creep) => (creep.memory.role === 'hauler'          || creep.memory.role === constants.ROLE_TRANSPORTER)      && (creep.memory.room === room.name)).length;
+        const upgraderAmount        = _.filter(Game.creeps, (creep) => (creep.memory.role === 'upgrader'        || creep.memory.role === constants.ROLE_UPGRADER)         && (creep.memory.room === room.name)).length;
+        const builderAmount         = _.filter(Game.creeps, (creep) => (creep.memory.role === 'builder'         || creep.memory.role === constants.ROLE_BUILDER)          && (creep.memory.room === room.name)).length;
 
         let line = 0;
         room.visual.text('Creep summary:', 0, line++, {align: 'left', opacity: 0.8});
@@ -210,29 +210,20 @@ var utilVisualizer =
 
             let entryTextStyle = textStyle;
             // Color based on the priority
-            switch(priority)
-            {
-                case constants.PRIORITY_EMERGENCY:
-                    entryTextStyle.color = "#E53935";
-                    break;
-                case constants.PRIORITY_IMMEDIATE:
-                    entryTextStyle.color = "#F4511E";
-                    break;
-                case constants.PRIORITY_VERY_HIGH:
-                    entryTextStyle.color = "#FFB300";
-                    break;
-                case constants.PRIORITY_HIGH:
-                    entryTextStyle.color = "#FDD835";
-                    break;
-                case constants.PRIORITY_NORMAL:
-                    entryTextStyle.color = "#7CB342";
-                    break;
-                case constants.PRIORITY_LOW:
-                    entryTextStyle.color = "#43A047";
-                    break;
-                default:
-                    entryTextStyle.color = "#8E24AA";
-            }
+            if (priority <= constants.PRIORITY_EMERGENCY)
+                entryTextStyle.color = "#E53935";
+            else if (priority <= constants.PRIORITY_IMMEDIATE)
+                entryTextStyle.color = "#F4511E";
+            else if (priority <= constants.PRIORITY_VERY_HIGH)
+                entryTextStyle.color = "#FFB300";
+            else if (priority <= constants.PRIORITY_HIGH)
+                entryTextStyle.color = "#FDD835";
+            else if (priority <= constants.PRIORITY_NORMAL)
+                entryTextStyle.color = "#7CB342";
+            else if (priority <= constants.PRIORITY_LOW)
+                entryTextStyle.color = "#43A047";
+            else
+                entryTextStyle.color = "#8E24AA";
 
             room.visual.text(priority,         rectStartX + offsetX,     rectStartY + offsetY, entryTextStyle);
             room.visual.text(data.memory.room, rectStartX + offsetX + 2, rectStartY + offsetY, entryTextStyle);
