@@ -17,10 +17,13 @@ var logicMemory = {
                     let creepSourceNum = Memory.creeps[name].source || 0;
                     let creepRoomName  = Memory.creeps[name].room;
 
-                    --Memory.rooms[creepRoomName].sources[creepSourceNum].haulers;
+                    if (Memory.rooms[creepRoomName] !== undefined && Memory.rooms[creepRoomName].sources !== undefined)
+                    {
+                        --Memory.rooms[creepRoomName].sources[creepSourceNum].haulers;
 
-                    if(Memory.rooms[creepRoomName].sources[creepSourceNum].haulers < 0)
-                        Memory.rooms[creepRoomName].sources[creepSourceNum].haulers = 0
+                        if (Memory.rooms[creepRoomName].sources[creepSourceNum].haulers < 0)
+                            Memory.rooms[creepRoomName].sources[creepSourceNum].haulers = 0
+                    }
                 }
 
                 delete Memory.creeps[name];
