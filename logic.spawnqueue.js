@@ -308,19 +308,19 @@ let logicSpawnQueue = {
         else
         {
             newBuilderName = constants.ROLE_BUILDER + (Game.time % 15000).toString(36);
-            if (energyAvailable <= 300)
+            if (energyAvailable <= 400)
             {
                 desiredParts = [MOVE, MOVE, WORK, CARRY, CARRY];
                 energyAvailable -= 300;
                 // 150 energy == 3 carry parts
             }
-            else if (energyAvailable <= 500)
+            else if (energyAvailable <= 550)
             {
                 desiredParts = [MOVE,MOVE,MOVE,WORK,WORK];
                 energyAvailable -= 350;
                 // 150 energy == 3 carry parts
             }
-            else if (energyAvailable <= 750)
+            else if (energyAvailable <= 800)
             {
                 desiredParts = [MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK];
                 energyAvailable -= 500;

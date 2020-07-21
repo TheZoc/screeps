@@ -228,6 +228,11 @@ var roleBuilder = {
                                 creep.memory.building = true;
                             }
                         }
+                        else
+                        {
+                            creep.say("🚧PANIC🚧")
+                            console.log(creep.name + " - Builder withdraw result (Panic!): " + withdrawResult);
+                        }
                     }
                 }
             }
