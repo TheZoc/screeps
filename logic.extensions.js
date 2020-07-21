@@ -82,7 +82,7 @@ var logicExtensions = {
                     continue; // Skip if this is some other structure
                 }
 
-                const cs = currentPos.lookFor(LOOK_CONSTRUCTION_SITES);
+                const cs = currentPosDiagonals[i].lookFor(LOOK_CONSTRUCTION_SITES);
                 if (cs.length)
                 {
                     if (cs[0].structureType === STRUCTURE_EXTENSION)
@@ -91,9 +91,17 @@ var logicExtensions = {
                 }
 
                 // If we're still here, spawn the structure
-                targetRoom.createConstructionSite(currentPosDiagonals[i], STRUCTURE_EXTENSION);
+                const createExtensionResult = targetRoom.createConstructionSite(currentPosDiagonals[i], STRUCTURE_EXTENSION);
                 this.queueExtensions.push(currentPosDiagonals[i]);
                 ++this.currentNumExtensions;
+
+                // Create roads for the extensions
+                if (createExtensionResult === OK)
+                {
+                    const currentPosHorizVert = _.map(HORIZONTALS, (d) => currentPosDiagonals[i].addDirection(d));
+                    for (let i = 0; i < currentPosHorizVert.length; ++i)
+                        targetRoom.createConstructionSite(currentPosHorizVert[i], STRUCTURE_ROAD);
+                }
             }
         }
 
