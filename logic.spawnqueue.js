@@ -307,33 +307,39 @@ let logicSpawnQueue = {
         }
         else
         {
+            // Each MOVE part can carry 2 other parts through a road.
+            let maxCarryParts = 0;
             newBuilderName = constants.ROLE_BUILDER + (Game.time % 15000).toString(36);
-            if (energyAvailable <= 400)
+            if (energyAvailable <= 350)
             {
                 desiredParts = [MOVE, MOVE, WORK, CARRY, CARRY];
                 energyAvailable -= 300;
-                // 150 energy == 3 carry parts
+                maxCarryParts = 1;
             }
-            else if (energyAvailable <= 550)
+            else if (energyAvailable <= 600)
             {
                 desiredParts = [MOVE,MOVE,MOVE,WORK,WORK];
                 energyAvailable -= 350;
-                // 150 energy == 3 carry parts
+                maxCarryParts = 4;
             }
-            else if (energyAvailable <= 800)
+            else if (energyAvailable <= 850)
             {
                 desiredParts = [MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK];
                 energyAvailable -= 500;
-                // 250 energy == 5 carry parts
+                maxCarryParts = 5;
             }
-            else // if (energyAvailable <= 1200)
+            else if (energyAvailable <= 1100)
             {
                 desiredParts = [MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK];
                 energyAvailable -= 700;
-                // 500 energy = 10 carry parts
+                maxCarryParts = 8;
             }
-
-            const maxCarryParts = 10;
+            else // if (energyAvailable > 1200)
+            {
+                desiredParts = [MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,WORK];
+                energyAvailable -= 900;
+                maxCarryParts = 11;
+            }
             const carryParts = Math.min(Math.floor(energyAvailable / BODYPART_COST[CARRY]), maxCarryParts);
             for(let i = 0; i < carryParts; ++i)
                 desiredParts.push(CARRY);
