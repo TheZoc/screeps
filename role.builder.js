@@ -228,7 +228,7 @@ var roleBuilder = {
                                 creep.memory.building = true;
                             }
                         }
-                        else
+                        else if (withdrawResult !== ERR_BUSY) // Still spawning
                         {
                             creep.say("🚧PANIC🚧")
                             console.log(creep.name + " - Builder withdraw result (Panic!): " + withdrawResult);
