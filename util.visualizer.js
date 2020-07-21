@@ -189,6 +189,9 @@ var utilVisualizer =
         printHeader();
         offsetY += fontSize;
 
+        if (room.memory.spawnQueue === undefined)
+            return;
+
         // Spawn queue data
         let spawnQueueCopy = new FlatQueue({
             data: [...room.memory.spawnQueue.data],
