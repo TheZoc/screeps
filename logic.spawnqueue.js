@@ -17,9 +17,9 @@ let logicSpawnQueue = {
     run: function(room)
     {
         // Only run this function if enough time has passed since the last update (10 ticks).
-        if (Game.time < room.memory.nextUpdate.extensions)
+        if (Game.time < room.memory.nextUpdate.spawnQueue)
             return;
-        room.memory.nextUpdate.extensions = Game.time + 10;
+        room.memory.nextUpdate.spawnQueue = Game.time + 10;
 
         const spawns = room.find(FIND_MY_STRUCTURES, { filter: { structureType: STRUCTURE_SPAWN } });
         if (spawns < 1)
@@ -96,13 +96,6 @@ let logicSpawnQueue = {
 
                         this.spawnQueue.push(constants.PRIORITY_HIGH, newCreep);
                         ++neededHarvesters;
-
-                        // TODO: Adjust the memory when spawning this creep
-                        // if (spawnResult === OK)
-                        // {
-                        //     targetRoom.memory.sources[i].harvester = newStaticHarvesterName;
-                        //     break;  // Break out of for loop, nothing else to be done here.
-                        // }
                     }
                 }
             }
@@ -199,12 +192,6 @@ let logicSpawnQueue = {
 
             this.spawnQueue.push(constants.PRIORITY_NORMAL, newCreep);
 
-            // TODO: Move this to the spawning code
-            // if (spawnResult == OK)
-            // {
-            //     ++targetSpawn.room.memory.sources[i].haulers;
-            //     break;  // Break out of for loop, nothing else to be done here.
-            // }
         }
 
         const amountTransporters = _.filter(Game.creeps, (creep) => (creep.memory.role === 'hauler' || creep.memory.role === constants.ROLE_TRANSPORTER) && (creep.memory.room === room.name)).length;
@@ -304,7 +291,7 @@ let logicSpawnQueue = {
     {
         const amountBuilder = _.filter(Game.creeps, (creep) => (creep.memory.role === 'builder' || creep.memory.role === constants.ROLE_BUILDER) && (creep.memory.room === room.name)).length;
 
-        if (amountBuilder >= this.MAX_BUILDERS_PER_ROOM)
+        if (amountBuilder >= constants.MAX_BUILDERS_PER_ROOM)
             return;
 
         let energyAvailable = room.energyCapacityAvailable;

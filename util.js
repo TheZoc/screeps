@@ -34,6 +34,9 @@ function minRes(structures, resource = RESOURCE_ENERGY) { // You can refactor th
 /**
  * Display message and spawn unit if requirements are met
  *
+ * @deprecated since version 1.1. Use creepSpawn() instead. Will be deleted soon(tm).
+ * For now, this method will remain as a way to spawn creeps manually.
+ *
  * @param {StructureSpawn} targetSpawn  - The spawn structure where the creep will be spawned
  * @param {array<string>} bodyParts     - An array describing the new creep’s body
  * @param {string} name                 - The name of the creep
@@ -45,6 +48,8 @@ function minRes(structures, resource = RESOURCE_ENERGY) { // You can refactor th
  */
 function spawn(targetSpawn, bodyParts, name, memory, prettyName, offsetY)
 {
+    console.log("<span style=\"color: red;\">Calling deprecated method <b>util.spawn</b></span>");
+
     memory = memory || {};
     prettyName = prettyName || name;
     offsetY = offsetY || 0;
@@ -58,12 +63,41 @@ function spawn(targetSpawn, bodyParts, name, memory, prettyName, offsetY)
                                             name,
                                             {memory: memory, dryRun: true});
 
-    if (canSpawn != OK)
+    if (canSpawn !== OK)
         return canSpawn;
 
     return targetSpawn.spawnCreep(bodyParts,
                                   name,
                                   {memory: memory});
+}
+
+/**
+ * Display message and spawn creep if resource requirements are met
+ *
+ * @param targetSpawn {StructureSpawn} The spawn structure where the creep will be spawned
+ * @param spawnData {Object} The spawn data structure that contains all the information about
+ *                           the creep. At minimum, it needs an Array of Body Parts, a name
+ *                           and a memory object.
+ *
+ * @return {OK|number|ERR_NOT_OWNER|ERR_NAME_EXISTS|ERR_BUSY|ERR_NOT_ENOUGH_ENERGY|ERR_INVALID_ARGS|ERR_RCL_NOT_ENOUGH}
+ */
+function creepSpawn(targetSpawn, spawnData)
+{
+    targetSpawn.room.visual.text('🚦 Willing to spawn ' + spawnData.name,
+        targetSpawn.pos.x + 1,
+        targetSpawn.pos.y - 0.5, // numMSg must be set to 0 at the start of the main loop
+        {align: 'left', opacity: 0.8});
+
+    const canSpawn = targetSpawn.spawnCreep(spawnData.bodyParts,
+                                            spawnData.name,
+                                            {memory: spawnData.memory, dryRun: true});
+
+    if (canSpawn !== OK)
+        return canSpawn;
+
+    return targetSpawn.spawnCreep(spawnData.bodyParts,
+                                  spawnData.name,
+                                  {memory: spawnData.memory});
 }
 
 /**
@@ -86,5 +120,6 @@ module.exports = {
     maxRes,
     minRes,
     spawn,
+    creepSpawn,
     calculateBodyPartsCost,
 };

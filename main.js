@@ -17,13 +17,13 @@ require('util.ext.prototype.roomPosition');
 const constants         = require("util.constants");
 
 // Screeps specific code
-var logicSpawn          = require('logic.spawn');
 var logicMemoryInit     = require('logic.memoryinit');
 var logicMemory         = require('logic.memory');
 var logicTower          = require('logic.tower');
 var logicLink           = require('logic.link');
 var logicExtensions     = require('logic.extensions');
-var logicSpawnQueue     = require('logic.spawnqueue')
+var logicSpawnQueue     = require('logic.spawnqueue');
+var logicSpawn          = require('logic.spawn');
 
 var roleHauler          = require('role.hauler');
 var roleUpgrader        = require('role.upgrader');
@@ -89,9 +89,6 @@ module.exports.loop = function ()
         // Initialize memory
         logicMemoryInit.run(Game.rooms[k]);
 
-        // Create the spawn queue for this room
-        logicSpawnQueue.run(Game.rooms[k]);
-
         // Attempt to create extensions in a X shape, per spawn/extension
         logicExtensions.run(Game.rooms[k]);
 
@@ -103,14 +100,12 @@ module.exports.loop = function ()
 
         // Run the link logic
         logicLink.run(Game.rooms[k]);
-    }
 
+        // Create the spawn queue for this room
+        logicSpawnQueue.run(Game.rooms[k]);
 
-    // TODO: Replace with a room/controller loop
-    for (let spawn in Game.spawns)
-    {
-        // Handle spawning
-        logicSpawn.run(Game.spawns[spawn]);  // This might not work when using a controller loop (ABOVE TODO)
+        // Spawn units in the spawn queue
+        logicSpawn.run(Game.rooms[k]);
     }
 
     // Special checks for the builder - this prevent it to be run once per creep
