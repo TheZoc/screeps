@@ -38,6 +38,9 @@ const roleNeighbourMiner  = require('role.neighbourminer');
 const utilVisualizer      = require('util.visualizer');
 //const utilRoadPlanner     = require('util.roadplanner');
 
+//const blueprintBunker     = require('blueprint.bunker');
+//blueprintBunker.init();
+
 // Task manager
 //const taskManager         = require('logic.taskmanager')
 
@@ -191,4 +194,13 @@ module.exports.loop = function ()
             roleNeighbourMiner.run(creep);
         }
     }
+
+    /*
+    // Bunker Blueprint test
+    if (Game.flags.Flag1 !== undefined)
+    {
+        blueprintBunker.view(Game.flags.Flag1.pos);
+        blueprintBunker.view_extension_order(Game.flags.Flag1.pos);
+    }
+    //*/
 }
