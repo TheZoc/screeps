@@ -17,27 +17,27 @@ require('util.ext.prototype.roomPosition');
 const constants         = require("util.constants");
 
 // Screeps specific code
-var logicMemoryInit     = require('logic.memoryinit');
-var logicMemory         = require('logic.memory');
-var logicTower          = require('logic.tower');
-var logicLink           = require('logic.link');
-var logicExtensions     = require('logic.extensions');
-var logicSpawnQueue     = require('logic.spawnqueue');
-var logicSpawn          = require('logic.spawn');
+const logicMemoryInit     = require('logic.memoryinit');
+const logicMemory         = require('logic.memory');
+const logicTower          = require('logic.tower');
+const logicLink           = require('logic.link');
+const logicExtensions     = require('logic.extensions');
+const logicSpawnQueue     = require('logic.spawnqueue');
+const logicSpawn          = require('logic.spawn');
 
-var roleHauler          = require('role.hauler');
-var roleUpgrader        = require('role.upgrader');
-var roleBuilder         = require('role.builder');
-var roleStaticHarvester = require('role.staticharvester');
-var roleUpgraderNewRoom = require('role.upgradernewroom');
-var roleScout           = require('role.scout');
-var roleNeighbourMiner  = require('role.neighbourminer');
+const roleHauler          = require('role.hauler');
+const roleUpgrader        = require('role.upgrader');
+const roleBuilder         = require('role.builder');
+const roleStaticHarvester = require('role.staticharvester');
+//const roleUpgraderNewRoom = require('role.upgradernewroom');
+const roleScout           = require('role.scout');
+const roleNeighbourMiner  = require('role.neighbourminer');
 
-var utilVisualizer      = require('util.visualizer');
-var utilRoadPlanner     = require('util.roadplanner');
+const utilVisualizer      = require('util.visualizer');
+//const utilRoadPlanner     = require('util.roadplanner');
 
 // Task manager
-var taskManager         = require('logic.taskmanager')
+//const taskManager         = require('logic.taskmanager')
 
 // This is a WIP road planner. It is planned outside of the loop to save cycles.
 // It doesn't work on it's own, needing user modification to use it.
@@ -138,7 +138,7 @@ module.exports.loop = function ()
     }
 
     // Go through all the creeps, check their role and run their behavior function
-    for(const [creepName, creep] of Object.entries(Game.creeps))
+    for(const [/* creepName */, creep] of Object.entries(Game.creeps))
     {
         const role = creep.memory.role;
         if(role === 'hauler' || role === constants.ROLE_TRANSPORTER)
