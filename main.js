@@ -14,6 +14,8 @@ global.FlatQueue        = require('datastructure.priorityqueue');
 
 // Utilities
 require('util.ext.prototype.roomPosition');
+require('util.ext.prototype.roomVisual');
+
 const constants         = require("util.constants");
 
 // Screeps specific code
@@ -106,6 +108,14 @@ module.exports.loop = function ()
 
         // Spawn units in the spawn queue
         logicSpawn.run(Game.rooms[k]);
+
+        // RoomVisual prototype enhancement test
+        // Game.rooms[k].visual.structure(15, 31, STRUCTURE_TOWER, {opacity: 0.25});
+        // Game.rooms[k].visual.connectRoads();
+        // Game.rooms[k].visual.speech('Hello World', 22, 24);
+        // Game.rooms[k].visual.animatedPosition(12, 32);
+        // Game.rooms[k].visual.resource("XGHO2", 14, 33);
+        // Game.rooms[k].visual.resource("K", 13, 32, 0.5);
     }
 
     // Special checks for the builder - this prevent it to be run once per creep
