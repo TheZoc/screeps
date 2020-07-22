@@ -10,7 +10,7 @@ let logicSpawn = {
 
     run: function(room)
     {
-        if (Memory.rooms[room.name].spawnQueue.length === 0)
+        if (Memory.rooms[room.name].spawnQueue === undefined || Memory.rooms[room.name].spawnQueue.length === 0)
             return;
 
         // Use the spawn queue we store in memory.
