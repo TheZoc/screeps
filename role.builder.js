@@ -121,7 +121,7 @@ var roleBuilder = {
                             // IMPORTANT: The 0.01 here must be the same value used in main.js
                             // Prioritize walls with less than 1% HP
                             let closestWallDamagedStructure = creep.pos.findClosestByRange(FIND_STRUCTURES, {
-                                filter: (structure) => structure.hits < structure.hitsMax * 0.01 && structure.structureType === STRUCTURE_WALL
+                                filter: (structure) => structure.hits < structure.hitsMax * 0.001 && structure.structureType === STRUCTURE_WALL
                             });
                             if (closestWallDamagedStructure)
                             {

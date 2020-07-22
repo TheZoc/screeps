@@ -128,7 +128,7 @@ module.exports.loop = function ()
         // Find walls that need repairs
         // IMPORTANT: The 0.01 here must be the same value used in role.builder.js
         const wallDamagedStructure = room.find(FIND_STRUCTURES, {
-            filter: (structure) => structure.hits < structure.hitsMax * 0.01 && structure.structureType === STRUCTURE_WALL
+            filter: (structure) => structure.hits < structure.hitsMax * 0.001 && structure.structureType === STRUCTURE_WALL
         });
 
         // Debug

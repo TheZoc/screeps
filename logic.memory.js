@@ -3,7 +3,9 @@
 // the memory from dead creeps.
 //////////////////////////////////////////////////////////////////////////////
 
-var logicMemory = {
+const constants = require("util.constants");
+
+let logicMemory = {
     cleanup: function()
     {
         // Memory cleanup and role maintenance
@@ -12,7 +14,7 @@ var logicMemory = {
             if(!Game.creeps[name])
             {
                 // Decrease hauler count
-                if (Memory.creeps[name].role == 'hauler')
+                if (Memory.creeps[name].role === 'hauler' || Memory.creeps[name].role === constants.ROLE_TRANSPORTER)
                 {
                     let creepSourceNum = Memory.creeps[name].source || 0;
                     let creepRoomName  = Memory.creeps[name].room;
