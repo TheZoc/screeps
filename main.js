@@ -38,6 +38,9 @@ const roleNeighbourMiner  = require('role.neighbourminer');
 const utilVisualizer      = require('util.visualizer');
 //const utilRoadPlanner     = require('util.roadplanner');
 
+const blueprintBase       = require('blueprint.base');
+blueprintBase.init();
+
 //const blueprintBunker     = require('blueprint.bunker');
 //blueprintBunker.init();
 
@@ -195,12 +198,16 @@ module.exports.loop = function ()
         }
     }
 
-    /*
+    //*
     // Bunker Blueprint test
     if (Game.flags.Flag1 !== undefined)
     {
-        blueprintBunker.view(Game.flags.Flag1.pos);
-        blueprintBunker.view_extension_order(Game.flags.Flag1.pos);
+        blueprintBase.view(Game.flags.Flag1.pos);
+        blueprintBase.view_extension_order(Game.flags.Flag1.pos);
+        ++Memory.test.counter;
+
+        // blueprintBunker.view(Game.flags.Flag1.pos);
+        // blueprintBunker.view_extension_order(Game.flags.Flag1.pos);
     }
     //*/
 }
