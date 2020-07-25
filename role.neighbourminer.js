@@ -15,7 +15,7 @@
 // Game.spawns['Spawn1'].spawnCreep([MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY], 'neighbourminer', {memory: {role: 'neighbourminer', harvestRoom: 'W8N4', deliveryRoom: 'W7N4'}});
 
 
-// Game.spawns['Spawn1'].spawnCreep([MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY], 'neighbourminer', {memory: {role: 'neighbourminer', harvestRoom: 'W12S16', deliveryRoom: 'W13S16'}});
+// Game.spawns['Spawn1'].spawnCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY], 'neighbourminer', {memory: {role: 'neighbourminer', harvestRoom: 'W9S53', deliveryRoom: 'W9S54'}});
 
 // Harvest a neighbor room resource and put it in the main link
 
@@ -120,41 +120,56 @@ var roleNeighbourMiner = {
             if (creep.memory.targetLinkId !== undefined)
             {
                 targetLink = Game.getObjectById(creep.memory.targetLinkId);
+
+                // If there is a storage in the place of the link, attempt to find a link, just in case the base has evolved since last time.
+                if (targetLink.structureType === STRUCTURE_STORAGE)
+                {
+                    targetLink = null;
+                }
             }
 
             if (targetLink === null)
             {
-                // Find our target link, if this is the first
-                // Assume we always have vision of the delivery room
-                const links = (Game.rooms[creep.memory.deliveryRoom].find(FIND_MY_STRUCTURES, {filter: { structureType: STRUCTURE_LINK }}));
-                if(links.length === 0)
-                {
-                    creep.say('🛑NM PANIC🛑');
-                    return;
-                }
+                let bestPath = null;
+                let bestPathCost = 999999;
 
                 const sourcePos = new RoomPosition(Memory.rooms[creep.memory.harvestRoom].sources[creep.memory.sourceIndex].x,
                                                    Memory.rooms[creep.memory.harvestRoom].sources[creep.memory.sourceIndex].y,
                                                    creep.memory.harvestRoom);
 
-                let bestPath = null;
-                let bestPathCost = 999999;
-                let nearestLink = null;
-                for(let i = 0, l = links.length; i < l; ++i)
+                // Find our target link, if this is the first
+                // Assume we always have vision of the delivery room
+                const links = (Game.rooms[creep.memory.deliveryRoom].find(FIND_MY_STRUCTURES, {filter: { structureType: STRUCTURE_LINK }}));
+                if(links.length > 0)
                 {
-                    const result = this.find_distance(sourcePos, links[i].pos);
+                    let nearestLink = null;
+                    for(let i = 0, l = links.length; i < l; ++i)
+                    {
+                        const result = this.find_distance(sourcePos, links[i].pos);
+                        if (result.cost < bestPathCost)
+                        {
+                            bestPathCost = result.cost;
+                            bestPath = result;
+                            nearestLink = links[i];
+                        }
+                    }
+                    // debug
+                    //console.log("bestPath:\n" + ex(bestPath));
+
+                    targetLink = nearestLink;
+                    creep.memory.targetLinkId = nearestLink.id;
+                }
+
+                if (Game.rooms[creep.memory.deliveryRoom].storage !== undefined)
+                {
+                    // The storage acts both as a fail-safe and as a valid target if it's closer than the link.
+                    const result = this.find_distance(sourcePos, Game.rooms[creep.memory.deliveryRoom].storage.pos);
                     if (result.cost < bestPathCost)
                     {
-                        bestPathCost = result.cost;
-                        bestPath = result;
-                        nearestLink = links[i];
+                        targetLink = Game.rooms.storage;
+                        creep.memory.targetLinkId = Game.rooms[creep.memory.deliveryRoom].storage.id;
                     }
                 }
-                // debug
-                console.log("bestPath:\n" + ex(bestPath));
-
-                targetLink = nearestLink;
-                creep.memory.targetLinkId = nearestLink.id;
             }
 
             if (!creep.pos.inRangeTo(targetLink.pos, 1))
