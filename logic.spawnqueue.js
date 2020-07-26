@@ -37,6 +37,8 @@ let logicSpawnQueue = {
         this.check_transporter(room);
         this.check_upgrader(room);
         this.check_builder(room);
+
+        this.check_scout(room);
     },
 
     /**
@@ -353,6 +355,39 @@ let logicSpawnQueue = {
                 room: room.name
             }
         }
+        this.spawnQueue.push(priority, newCreep);
+    },
+
+    /**
+     *
+     * @param room {Room}
+     */
+    check_scout: function(room)
+    {
+        // Disabled for now.
+        return;
+
+
+        // Try to know the rooms around us, so we can plan for expansion and remote mining
+        const scout = Game.getObjectById(room.memory.scouting.scoutId);
+        if (scout !== null)
+            return;
+
+        const desiredParts = [TOUGH, MOVE, MOVE, HEAL];
+        const priority = constants.PRIORITY_LOW;
+        const newScoutName = constants.ROLE_SCOUT + (Game.time % 15000).toString(36);
+
+        const newCreep = {
+            bodyParts: desiredParts,
+            name: newScoutName,
+            memory: {
+                role: constants.ROLE_SCOUT,
+                room: room.name,        // "Owner" room
+                targetRoom: room.name,  // Target room
+                currentRoom: room.name, // Current room
+            }
+        }
+
         this.spawnQueue.push(priority, newCreep);
     },
 };

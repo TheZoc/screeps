@@ -84,6 +84,20 @@ var logicMemoryInit = {
         targetRoom.memory.nextUpdate = {};
         targetRoom.memory.nextUpdate.extensions = 0;
         targetRoom.memory.nextUpdate.spawnQueue = 0;
+    },
+
+    /**
+     *
+     * @param targetRoom {Room}
+     */
+    init_scouting: function(targetRoom)
+    {
+        if (targetRoom.memory.scouting !== undefined)
+            return;
+
+        // This initialization should be handled elsewhere, to be easier to maintain. Keeping it here for now.
+        targetRoom.memory.scouting = {}
+        targetRoom.memory.scouting.scoutId = null;
     }
 };
 
