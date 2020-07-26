@@ -33,6 +33,7 @@ const roleBuilder         = require('role.builder');
 const roleStaticHarvester = require('role.staticharvester');
 //const roleUpgraderNewRoom = require('role.upgradernewroom');
 const roleScout           = require('role.scout');
+const roleFlagScout       = require('role.flagscout');
 const roleNeighbourMiner  = require('role.neighbourminer');
 
 const utilVisualizer      = require('util.visualizer');
@@ -191,6 +192,10 @@ module.exports.loop = function ()
         else if(role === 'scout' || role === constants.ROLE_SCOUT)
         {
             roleScout.run(creep);
+        }
+        else if(role === 'flagscout')
+        {
+            roleFlagScout.run(creep);
         }
         else if(role === 'neighbourminer' || role === constants.ROLE_REMOTE_HARVESTER)
         {
