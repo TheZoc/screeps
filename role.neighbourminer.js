@@ -92,7 +92,7 @@ var roleNeighbourMiner = {
         {
             // Prepare the needed roads on the first runs.
             // 20 here is an odd number I just guessed. Need to check how much is used while building.
-            if (creep.store.getUsedCapacity(RESOURCE_ENERGY) >= 20)
+            if (creep.store.getUsedCapacity(RESOURCE_ENERGY) >= 20 && creep.room.name !== creep.memory.deliveryRoom)
             {
                 let csRoads = creep.room.find(FIND_MY_CONSTRUCTION_SITES, {filter: { structureType: STRUCTURE_ROAD }});
                 if (csRoads.length)
