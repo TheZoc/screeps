@@ -20,6 +20,10 @@ const constants = {
     ROLE_TRANSPORTER      : 'T', // Previously Hauler
     ROLE_UPGRADER         : 'U',
 
+    // Combat Roles
+    ROLE_ATTACKER         : 'A',
+    ROLE_MEDIC            : 'M',
+
     // Priority
     PRIORITY_EMERGENCY  : 10,
     PRIORITY_IMMEDIATE  : 30,

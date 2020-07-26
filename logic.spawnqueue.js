@@ -390,6 +390,66 @@ let logicSpawnQueue = {
 
         this.spawnQueue.push(priority, newCreep);
     },
+
+    /**
+     * Super hackish version to spawn an attack duo unit
+     *
+     * @param {Room} room
+     */
+    spawn_attack_duo: function(room)
+    {
+        if (Game.flags.spawnduo === undefined)
+            return;
+
+        let attackerDesiredParts = [];
+        for (let i = 0; i < 10; ++i) attackerDesiredParts.push(TOUGH);
+        for (let i = 0; i < 10; ++i) attackerDesiredParts.push(MOVE);
+        for (let i = 0; i < 5; ++i)  attackerDesiredParts.push(RANGED_ATTACK);
+
+        const priority = constants.PRIORITY_NORMAL;
+        const newAttackerName = constants.ROLE_ATTACKER + (Game.time % 15000).toString(36);
+
+        const newAttackerCreep = {
+            bodyParts: attackerDesiredParts,
+            name: newAttackerName,
+            memory: {
+                role: constants.ROLE_ATTACKER,
+                room: room.name,        // "Owner" room
+                healer: null
+            }
+        }
+        this.spawnQueue.push(priority, newAttackerCreep);
+    },
+
+    spawn_medic_for_attack_duo(room)
+    {
+        const lonelyDuoAttackersAmount = _.filter(Game.creeps,
+                                                 (creep) =>
+                                                     (creep.memory.role === constants.ROLE_ATTACKER) &&
+                                                     (creep.memory.healer === null)).length;
+
+        if (lonelyDuoAttackersAmount === 0)
+            return;
+
+        const priority = constants.PRIORITY_HIGH; // If the attacker is waiting, lets not waste ticks!
+
+        let medicDesiredParts = [];
+        for (let i = 0; i < 10; ++i) medicDesiredParts.push(TOUGH);
+        for (let i = 0; i < 8; ++i)  medicDesiredParts.push(MOVE);
+        for (let i = 0; i < 4; ++i)  medicDesiredParts.push(HEAL);
+
+        const newMedicName = constants.ROLE_MEDIC + (Game.time % 15000).toString(36);
+        const newMedicCreep = {
+            bodyParts: medicDesiredParts,
+            name: newMedicName,
+            memory: {
+                role: constants.ROLE_MEDIC,
+                room: room.name,        // "Owner" room
+                attacker: null
+            }
+        }
+        this.spawnQueue.push(priority, newMedicCreep);
+    }
 };
 
 module.exports = logicSpawnQueue;
