@@ -20,7 +20,15 @@ var logicTower =
                 let closestHostile = towers[i].pos.findClosestByRange(FIND_HOSTILE_CREEPS);
                 if(closestHostile)
                 {
-                    towers[i].attack(closestHostile);
+                    const attackResult = towers[i].attack(closestHostile);
+
+                    if (attackResult === ERR_NOT_ENOUGH_ENERGY)
+                    {
+                        // Quick hack to activate safe mode if available and not active.
+                        if (room.controller.safeModeAvailable && room.controller.safeMode === undefined)
+                            room.controller.activateSafeMode();
+                    }
+
                 }
                 else
                 {
