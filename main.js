@@ -204,6 +204,9 @@ module.exports.loop = function ()
             case 'flagscout':
                 roleFlagScout.run(creep);
                 break;
+
+            default:
+                console.log("Creep with an unknown role: " + creep.name + " - Role: " + creep.memory.role);
         }
     }
 
