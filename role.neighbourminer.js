@@ -11,11 +11,11 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-// Game.spawns['Spawn1'].spawnCreep([MOVE,MOVE,WORK,WORK,CARRY,CARRY,CARRY,CARRY], 'neighbourminer', {memory: {role: 'neighbourminer', harvestRoom: 'W8N4', deliveryRoom: 'W7N4'}});
-// Game.spawns['Spawn1'].spawnCreep([MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY], 'neighbourminer', {memory: {role: 'neighbourminer', harvestRoom: 'W8N4', deliveryRoom: 'W7N4'}});
+// Game.spawns['Spawn1'].spawnCreep([MOVE,MOVE,WORK,WORK,CARRY,CARRY,CARRY,CARRY], 'neighbourminer', {memory: {role: 'R', harvestRoom: 'W8N4', deliveryRoom: 'W7N4'}});
+// Game.spawns['Spawn1'].spawnCreep([MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY], 'neighbourminer', {memory: {role: 'R', harvestRoom: 'W8N4', deliveryRoom: 'W7N4'}});
 
 
-// Game.spawns['Spawn1'].spawnCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY], 'neighbourminer', {memory: {role: 'neighbourminer', harvestRoom: 'W9S53', deliveryRoom: 'W9S54'}});
+// Game.spawns['Spawn1'].spawnCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY], 'neighbourminer', {memory: {role: 'R', harvestRoom: 'W9S53', deliveryRoom: 'W9S54'}});
 
 // Harvest a neighbor room resource and put it in the main link
 

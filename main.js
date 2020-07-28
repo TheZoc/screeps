@@ -172,6 +172,7 @@ module.exports.loop = function ()
                 break;
 
             case constants.ROLE_REMOTE_HARVESTER:
+            case 'neighbourminer':
                 roleNeighbourMiner.run(creep);
                 break;
 
