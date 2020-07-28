@@ -14,6 +14,7 @@ const constants = {
 
     // Creep Roles
     ROLE_BUILDER          : 'B',
+    ROLE_PROSPECTOR       : 'P',
     ROLE_REMOTE_HARVESTER : 'R', // Previously Neighbour Miner
     ROLE_SCOUT            : 'S', // Need to be rebuilt from scratch
     ROLE_STATIC_HARVESTER : 'H',

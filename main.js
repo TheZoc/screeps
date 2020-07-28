@@ -35,6 +35,7 @@ const roleStaticHarvester = require('role.staticharvester');
 const roleScout           = require('role.scout');
 const roleFlagScout       = require('role.flagscout');
 const roleNeighbourMiner  = require('role.neighbourminer');
+const roleProspector      = require('role.prospector');
 
 const utilVisualizer      = require('util.visualizer');
 //const utilRoadPlanner     = require('util.roadplanner');
@@ -157,49 +158,51 @@ module.exports.loop = function ()
     // Go through all the creeps, check their role and run their behavior function
     for(const [/* creepName */, creep] of Object.entries(Game.creeps))
     {
-        const role = creep.memory.role;
-        if(role === 'hauler' || role === constants.ROLE_TRANSPORTER)
+        switch (creep.memory.role)
         {
-            roleHauler.run(creep);
-        }
-        else if(role === 'staticHarvester' || role === constants.ROLE_STATIC_HARVESTER)
-        {
-            roleStaticHarvester.run(creep);
-        }
-        else if(role === 'upgrader' || role === constants.ROLE_UPGRADER)
-        {
+            case constants.ROLE_BUILDER:
+                if (activateBuilder[creep.room.name])
+                    roleBuilder.run(creep);
+                else
+                    roleUpgrader.run(creep);
+                break;
+
+            case constants.ROLE_PROSPECTOR:
+                roleProspector.run(creep);
+                break;
+
+            case constants.ROLE_REMOTE_HARVESTER:
+                roleNeighbourMiner.run(creep);
+                break;
+
+            case constants.ROLE_SCOUT:
+                roleScout.run(creep);
+                break;
+
+            case constants.ROLE_STATIC_HARVESTER:
+                roleStaticHarvester.run(creep);
+                break;
+
+            case constants.ROLE_TRANSPORTER:
+                roleHauler.run(creep);
+                break;
+
+            case constants.ROLE_UPGRADER:
                 roleUpgrader.run(creep);
-        }
-        else if(role === 'upgradernewroom')
-        {
-            if (creep.pos.roomName !== 'W1N4')
-                if (!creep.fatigue)
-                    creep.moveTo(Game.flags.spawnflag);
-            else
-                roleUpgrader.run(creep);
-        }
-        else if(role === 'builder' || role === constants.ROLE_BUILDER)
-        {
-            if (activateBuilder[creep.room.name])
-            {
-                roleBuilder.run(creep);
-            }
-            else
-            {
-                roleUpgrader.run(creep);
-            }
-        }
-        else if(role === 'scout' || role === constants.ROLE_SCOUT)
-        {
-            roleScout.run(creep);
-        }
-        else if(role === 'flagscout')
-        {
-            roleFlagScout.run(creep);
-        }
-        else if(role === 'neighbourminer' || role === constants.ROLE_REMOTE_HARVESTER)
-        {
-            roleNeighbourMiner.run(creep);
+                break;
+
+            // Old stuff
+            case 'upgradernewroom':
+                if (creep.pos.roomName !== 'W1N4')
+                    if (!creep.fatigue)
+                        creep.moveTo(Game.flags.spawnflag);
+                    else
+                        roleUpgrader.run(creep);
+                break;
+
+            case 'flagscout':
+                roleFlagScout.run(creep);
+                break;
         }
     }
 
