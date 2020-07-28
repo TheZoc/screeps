@@ -65,10 +65,11 @@ var utilVisualizer =
      */
     draw_creep_count: function(room)
     {
-        const staticHarvesterAmount = _.filter(Game.creeps, (creep) => (creep.memory.role === 'staticHarvester' || creep.memory.role === constants.ROLE_STATIC_HARVESTER) && (creep.memory.room === room.name)).length;
-        const haulerAmount          = _.filter(Game.creeps, (creep) => (creep.memory.role === 'hauler'          || creep.memory.role === constants.ROLE_TRANSPORTER)      && (creep.memory.room === room.name)).length;
-        const upgraderAmount        = _.filter(Game.creeps, (creep) => (creep.memory.role === 'upgrader'        || creep.memory.role === constants.ROLE_UPGRADER)         && (creep.memory.room === room.name)).length;
-        const builderAmount         = _.filter(Game.creeps, (creep) => (creep.memory.role === 'builder'         || creep.memory.role === constants.ROLE_BUILDER)          && (creep.memory.room === room.name)).length;
+        const staticHarvesterAmount = _.filter(Game.creeps, (creep) => (creep.memory.role === constants.ROLE_STATIC_HARVESTER) && (creep.memory.room === room.name)).length;
+        const haulerAmount          = _.filter(Game.creeps, (creep) => (creep.memory.role === constants.ROLE_TRANSPORTER)      && (creep.memory.room === room.name)).length;
+        const upgraderAmount        = _.filter(Game.creeps, (creep) => (creep.memory.role === constants.ROLE_UPGRADER)         && (creep.memory.room === room.name)).length;
+        const builderAmount         = _.filter(Game.creeps, (creep) => (creep.memory.role === constants.ROLE_BUILDER)          && (creep.memory.room === room.name)).length;
+        const prospectorAmount      = _.filter(Game.creeps, (creep) => (creep.memory.role === constants.ROLE_PROSPECTOR)       && (creep.memory.room === room.name)).length;
 
         let line = 0;
         room.visual.text('Creep summary:', 0, line++, {align: 'left', opacity: 0.8});
@@ -76,6 +77,7 @@ var utilVisualizer =
         room.visual.text('Haulers: ' + haulerAmount, 0, line++, {align: 'left', opacity: 0.8});
         room.visual.text('Upgrader: ' + upgraderAmount, 0, line++, {align: 'left', opacity: 0.8});
         room.visual.text('Builder: ' + builderAmount, 0, line++, {align: 'left', opacity: 0.8});
+        room.visual.text('Prospector: ' + prospectorAmount, 0, line++, {align: 'left', opacity: 0.8});
     },
 
     // Currently a test function. Should find the centroid between Sources and Room Controller. Might be useful for automated expansions.

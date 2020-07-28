@@ -37,7 +37,7 @@ let logicSpawnQueue = {
         this.check_transporter(room);
         this.check_upgrader(room);
         this.check_builder(room);
-
+        this.check_prospector(room);
         this.check_scout(room);
     },
 
@@ -356,6 +356,40 @@ let logicSpawnQueue = {
             }
         }
         this.spawnQueue.push(priority, newCreep);
+    },
+
+    /**
+     *
+     * @param {Room} room
+     */
+    check_prospector: function(room)
+    {
+        if (room.controller.level < 6)
+            return;
+
+        const amountProspectors = _.filter(Game.creeps, (creep) => (creep.memory.role === constants.ROLE_PROSPECTOR) &&
+                                                                   (creep.memory.room === room.name)).length;
+
+        if (amountProspectors >= constants.MAX_PROSPECTORS_PER_ROOM)
+            return;
+
+        // TODO: Optimize this body
+        let desiredParts = [];
+        for (let i = 0; i < 8; ++i) desiredParts.push(WORK);
+        for (let i = 0; i < 9; ++i) desiredParts.push(MOVE);
+        for (let i = 0; i < 10; ++i)  desiredParts.push(CARRY);
+
+        const newCreepName = constants.ROLE_PROSPECTOR + (Game.time % 15000).toString(36);
+        const newCreep = {
+            bodyParts: desiredParts,
+            name: newCreepName,
+            memory: {
+                role: constants.ROLE_PROSPECTOR,
+                room: room.name,        // "Owner" room
+            }
+        }
+
+        this.spawnQueue.push(constants.PRIORITY_LOW, newCreep);
     },
 
     /**

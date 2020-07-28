@@ -11,6 +11,7 @@ const constants = {
     MAX_TRANSPORTERS_PER_SOURCE : 2,
     MAX_UPGRADERS_PER_ROOM : 2,
     MAX_BUILDERS_PER_ROOM : 2,
+    MAX_PROSPECTORS_PER_ROOM : 1,
 
     // Creep Roles
     ROLE_BUILDER          : 'B',
