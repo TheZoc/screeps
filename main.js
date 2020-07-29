@@ -26,6 +26,7 @@ const logicLink           = require('logic.link');
 const logicExtensions     = require('logic.extensions');
 const logicSpawnQueue     = require('logic.spawnqueue');
 const logicSpawn          = require('logic.spawn');
+const logicMarket         = require('logic.market');
 
 const roleHauler          = require('role.hauler');
 const roleUpgrader        = require('role.upgrader');
@@ -116,6 +117,9 @@ module.exports.loop = function ()
 
         // Spawn units in the spawn queue
         logicSpawn.run(Game.rooms[k]);
+
+        // Runs the market logic
+        logicMarket.run(Game.rooms[k]);
 
         // RoomVisual prototype enhancement test
         // Game.rooms[k].visual.structure(15, 31, STRUCTURE_TOWER, {opacity: 0.25});
