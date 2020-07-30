@@ -47,13 +47,22 @@ let logicMarket = {
         const bestOrders = this.getBestThreeBuyOrders(room, actualResourcesToSell);
         console.log('Best orders:\n' + ex(bestOrders));
 
-        console.log("Here the good would be sold, but the code is disabled for now until we're happy with the formulas for estimating profits");
+        //console.log("Here the good would be sold, but the code is disabled for now until we're happy with the formulas for estimating profits");
 
         // SELL!
-        // TODO: check the amount of available resources vs the amount of requested resources in the buy order.
-        // let result = Game.market.deal(bestOrders[0].id, 1000, room.name);
-        // if (result === 0)
-        //     console.log('Order completed successfully');
+        const amountToSell = Math.min(room.terminal.store[bestOrders[0].resourceType], bestOrders[0].remainingAmount,  bestOrders[0].amount);
+        let result = Game.market.deal(bestOrders[0].id, amountToSell, room.name);
+        if (result === 0)
+        {
+            let buffer = 'Order completed successfully:\n' +
+                'Resource: ' + bestOrders[0].resourceType + '\n' +
+                'Amount: ' + amountToSell + '\n' +
+                'Credits ' + amountToSell * bestOrders[0].price + '\n' +
+                'Order details:\n' + ex(bestOrders[0]);
+
+            console.log(buffer);
+            Game.notify(buffer, 360);
+        }
     },
 
     /**
