@@ -106,11 +106,7 @@ let logicSpawnQueue = {
         // This might need to be adjusted if creating a Spawn in a room with a single source.
         if (neededHarvesters === sourcesInTheRoom)
         {
-            let totalCost = 0;
-            for (let i = 0; i <  staticHarvesterParts.length; ++i)
-            {
-                totalCost += BODYPART_COST[staticHarvesterParts[i]];
-            }
+            const totalCost = util.calculateBodyPartsCost(staticHarvesterParts);
 
             // If we have NO harvesters and not enough to spawn an upgraded harvester,
             // queue up an "emergency" harvester with just the basic parts
@@ -176,6 +172,7 @@ let logicSpawnQueue = {
         }
         // console.log(transporterParts);
 
+        const amountTransporters = _.filter(Game.creeps, (creep) => (creep.memory.role === 'hauler' || creep.memory.role === constants.ROLE_TRANSPORTER) && (creep.memory.room === room.name)).length;
         for(let i = 0, l = room.memory.sources.length; i < l; ++i)
         {
             if (room.memory.sources[i].haulers >= constants.MAX_TRANSPORTERS_PER_SOURCE)
@@ -192,11 +189,13 @@ let logicSpawnQueue = {
                 }
             }
 
-            this.spawnQueue.push(constants.PRIORITY_NORMAL, newCreep);
+            let priority = constants.PRIORITY_NORMAL;
+            if (amountTransporters === 0)
+                priority = constants.PRIORITY_VERY_HIGH;
 
+            this.spawnQueue.push(priority, newCreep);
         }
 
-        const amountTransporters = _.filter(Game.creeps, (creep) => (creep.memory.role === 'hauler' || creep.memory.role === constants.ROLE_TRANSPORTER) && (creep.memory.room === room.name)).length;
         if (amountTransporters === 0)
         {
             const totalCost = util.calculateBodyPartsCost(transporterParts);
@@ -226,7 +225,7 @@ let logicSpawnQueue = {
                         room: room.name
                     }
                 }
-                this.spawnQueue.push(constants.PRIORITY_VERY_HIGH, newCreep);
+                this.spawnQueue.push(constants.PRIORITY_VERY_HIGH - 1, newCreep);
             }
         }
     },
