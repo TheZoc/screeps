@@ -6,7 +6,7 @@
 // them here too, for now.
 //////////////////////////////////////////////////////////////////////////////
 
-const constants = {
+let constants = {
     // Base configuration - TODO: Move this to a better place
     MAX_TRANSPORTERS_PER_SOURCE : 2,
     MAX_UPGRADERS_PER_ROOM : 2,
@@ -34,5 +34,18 @@ const constants = {
     PRIORITY_NORMAL     : 200,
     PRIORITY_LOW        : 300,
 }
+
+// Role-to-Name map
+constants.HUMAN_READABLE_ROLE_NAME = {
+    [constants.ROLE_BUILDER]          : 'Builder',
+    [constants.ROLE_PROSPECTOR]       : 'Prospector',
+    [constants.ROLE_REMOTE_HARVESTER] : 'Remote Harvester',
+    [constants.ROLE_SCOUT]            : 'Scout',
+    [constants.ROLE_STATIC_HARVESTER] : 'Static Harvester',
+    [constants.ROLE_TRANSPORTER]      : 'Transporter',
+    [constants.ROLE_UPGRADER]         : 'Upgrader',
+    [constants.ROLE_ATTACKER]         : 'Attacker',
+    [constants.ROLE_MEDIC]            : 'Medic',
+},
 
 module.exports = constants;

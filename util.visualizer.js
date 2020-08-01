@@ -7,7 +7,7 @@
 
 const constants = require("util.constants");
 
-var utilVisualizer =
+const utilVisualizer =
 {
     /**
      * @param {Room} room
@@ -50,7 +50,7 @@ var utilVisualizer =
             {
                 let spawningCreep = Game.creeps[spawns[i].spawning.name];
                 spawns[i].room.visual.text(
-                    '🏭️' + spawningCreep.memory.role,
+                    '🏭️' + constants.HUMAN_READABLE_ROLE_NAME[spawningCreep.memory.role],
                     spawns[i].pos.x + 1,
                     spawns[i].pos.y + 0.5,
                     {align: 'left', opacity: 0.8});
@@ -161,10 +161,10 @@ var utilVisualizer =
      */
     draw_spawn_queue: function(room)
     {
-        const rectStartX = 26;
+        const rectStartX = 34;
         const rectStartY = 0;
-        const rectWidth = 23;
-        const rectHeight = 5;
+        const rectWidth = 15;
+        const rectHeight = 7.5;
         const fontSize = 0.6;
         const textStyle = {font: fontSize + " Roboto", align: "left"};
         const headerTextStyle = {color: '#E0E0E0', font: fontSize + " Roboto", align: "left"};
@@ -183,9 +183,9 @@ var utilVisualizer =
         const printHeader = function() {
             room.visual.text("Prio", rectStartX + offsetX,     rectStartY + offsetY, headerTextStyle);
             room.visual.text("Room", rectStartX + offsetX + 2, rectStartY + offsetY, headerTextStyle);
-            room.visual.text("Role", rectStartX + offsetX + 5, rectStartY + offsetY, headerTextStyle);
-            room.visual.text("Cost", rectStartX + offsetX + 7, rectStartY + offsetY, headerTextStyle);
-            room.visual.text("Name", rectStartX + offsetX + 9, rectStartY + offsetY, headerTextStyle);
+            room.visual.text("Cost", rectStartX + offsetX + 5, rectStartY + offsetY, headerTextStyle);
+            room.visual.text("Name", rectStartX + offsetX + 7, rectStartY + offsetY, headerTextStyle);
+            room.visual.text("Role", rectStartX + offsetX + 9, rectStartY + offsetY, headerTextStyle);
         }
 
         printHeader();
@@ -201,17 +201,14 @@ var utilVisualizer =
             length: room.memory.spawnQueue.length,
         })
 
-        let entry_no = 0;
+        //let entry_no = 0;
         while (spawnQueueCopy.getLength() > 0)
         {
             const priority = spawnQueueCopy.peekPriority();
             const data = spawnQueueCopy.pop();
 
-            let totalCost = 0;
-            for (let i = 0; i <  data.bodyParts.length; ++i)
-            {
-                totalCost += BODYPART_COST[data.bodyParts[i]];
-            }
+            const totalCost = util.calculateBodyPartsCost(data.bodyParts);
+            const hrRole = constants.HUMAN_READABLE_ROLE_NAME[data.memory.role];
 
             let entryTextStyle = textStyle;
             // Color based on the priority
@@ -232,18 +229,20 @@ var utilVisualizer =
 
             room.visual.text(priority,         rectStartX + offsetX,     rectStartY + offsetY, entryTextStyle);
             room.visual.text(data.memory.room, rectStartX + offsetX + 2, rectStartY + offsetY, entryTextStyle);
-            room.visual.text(data.memory.role, rectStartX + offsetX + 5, rectStartY + offsetY, entryTextStyle);
-            room.visual.text(totalCost,        rectStartX + offsetX + 7, rectStartY + offsetY, entryTextStyle);
-            room.visual.text(data.name,        rectStartX + offsetX + 9, rectStartY + offsetY, entryTextStyle);
+            room.visual.text(totalCost,        rectStartX + offsetX + 5, rectStartY + offsetY, entryTextStyle);
+            room.visual.text(data.name,        rectStartX + offsetX + 7, rectStartY + offsetY, entryTextStyle);
+            room.visual.text(hrRole,           rectStartX + offsetX + 9, rectStartY + offsetY, entryTextStyle);
 
+
+            // Previously, we'd have 2 columns with 6 entries each, now we only draw a single column, planned for 10 entries.
             // Every 6 entries, create a new column. WARNING: 3rd column will be hidden, since it's out of bounds (!)
-            ++entry_no;
-            if (entry_no % 6 === 0)
-            {
-                offsetX += 12;
-                offsetY = initialOffsetY;
-                printHeader();
-            }
+            // ++entry_no;
+            // if (entry_no % 6 === 0)
+            // {
+            //     offsetX += 12;
+            //     offsetY = initialOffsetY;
+            //     printHeader();
+            // }
 
             offsetY += fontSize;
         }
