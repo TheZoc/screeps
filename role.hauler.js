@@ -191,41 +191,40 @@ var roleHauler = {
                         {
                             creep.memory.withdraw = true;
                         }
+                        return;
+                    }
+                }
+
+                // If we're here, all the spawns, extensions and structures are at their capacity. Start moving things to our storage.
+                const storages = creep.room.find(FIND_MY_STRUCTURES,
+                    {
+                        filter: (structure) =>
+                        {
+                            return structure.structureType === STRUCTURE_STORAGE && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
+                        }
+                    });
+
+                if (storages.length > 0)
+                {
+                    const target = creep.pos.findClosestByPath(storages);
+                    const transferResult = creep.transfer(target, RESOURCE_ENERGY);
+                    if(transferResult === ERR_NOT_IN_RANGE)
+                    {
+                        if (!creep.fatigue)
+                            creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
+                    }
+
+                    if (creep.store.getUsedCapacity(RESOURCE_ENERGY) === 0)
+                    {
+                        creep.memory.withdraw = true;
                     }
                 }
                 else
                 {
-                    // If we're here, all the spawns, extensions and structures are at their capacity. Start moving things to our storage.
-                    const storages = creep.room.find(FIND_MY_STRUCTURES,
-                        {
-                            filter: (structure) =>
-                            {
-                                return structure.structureType === STRUCTURE_STORAGE && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
-                            }
-                        });
-
-                    if (storages.length > 0)
-                    {
-                        const target = creep.pos.findClosestByPath(storages);
-                        const transferResult = creep.transfer(target, RESOURCE_ENERGY);
-                        if(transferResult === ERR_NOT_IN_RANGE)
-                        {
-                            if (!creep.fatigue)
-                                creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
-                        }
-
-                        if (creep.store.getUsedCapacity(RESOURCE_ENERGY) === 0)
-                        {
-                            creep.memory.withdraw = true;
-                        }
-                    }
-                    else
-                    {
-                        // No loitering! - Get out of the way so others can pass.
-                        const target = creep.pos.findClosestByPath(FIND_MY_SPAWNS);
-                        if (!creep.fatigue)
-                            creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
-                    }
+                    // No loitering! - Get out of the way so others can pass.
+                    const target = creep.pos.findClosestByPath(FIND_MY_SPAWNS);
+                    if (!creep.fatigue)
+                        creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
                 }
             }
         }
