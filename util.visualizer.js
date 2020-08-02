@@ -59,25 +59,72 @@ const utilVisualizer =
 
     },
 
-    // This should be processing intensive. Only enable for debugging!
     /**
      * @param {Room} room
      */
     draw_creep_count: function(room)
     {
-        const staticHarvesterAmount = _.filter(Game.creeps, (creep) => (creep.memory.role === constants.ROLE_STATIC_HARVESTER) && (creep.memory.room === room.name)).length;
-        const haulerAmount          = _.filter(Game.creeps, (creep) => (creep.memory.role === constants.ROLE_TRANSPORTER)      && (creep.memory.room === room.name)).length;
-        const upgraderAmount        = _.filter(Game.creeps, (creep) => (creep.memory.role === constants.ROLE_UPGRADER)         && (creep.memory.room === room.name)).length;
-        const builderAmount         = _.filter(Game.creeps, (creep) => (creep.memory.role === constants.ROLE_BUILDER)          && (creep.memory.room === room.name)).length;
-        const prospectorAmount      = _.filter(Game.creeps, (creep) => (creep.memory.role === constants.ROLE_PROSPECTOR)       && (creep.memory.room === room.name)).length;
+        // Initialize out creep counter with the constants we have defined.
+        let creepCounter = {};
+        for(const role in constants.HUMAN_READABLE_ROLE_NAME)
+            creepCounter[role] = 0;
 
-        let line = 0;
-        room.visual.text('Creep summary:', 0, line++, {align: 'left', opacity: 0.8});
-        room.visual.text('Static Harvesters: ' + staticHarvesterAmount, 0, line++, {align: 'left', opacity: 0.8});
-        room.visual.text('Haulers: ' + haulerAmount, 0, line++, {align: 'left', opacity: 0.8});
-        room.visual.text('Upgrader: ' + upgraderAmount, 0, line++, {align: 'left', opacity: 0.8});
-        room.visual.text('Builder: ' + builderAmount, 0, line++, {align: 'left', opacity: 0.8});
-        room.visual.text('Prospector: ' + prospectorAmount, 0, line++, {align: 'left', opacity: 0.8});
+        // Count the amount of creeps
+        for(const [/* creepName */, creep] of Object.entries(Game.creeps))
+        {
+            // Handle unknown creeps (code transitions, etc.)
+            if (creepCounter[creep.memory.role] === undefined)
+                creepCounter[creep.memory.role] = 1;
+            else
+                ++creepCounter[creep.memory.role];
+        }
+
+        const creepsWanted = {
+            [constants.ROLE_BUILDER]          : constants.MAX_BUILDERS_PER_ROOM,
+            [constants.ROLE_STATIC_HARVESTER] : room.memory.sources.length,
+            [constants.ROLE_PROSPECTOR]       : constants.MAX_PROSPECTORS_PER_ROOM,
+            [constants.ROLE_TRANSPORTER]      : constants.MAX_TRANSPORTERS_PER_SOURCE * room.memory.sources.length,
+            [constants.ROLE_UPGRADER]         : constants.MAX_UPGRADERS_PER_ROOM,
+        };
+
+        // Draw the fancy rectangle
+        const rectStartX = 0;
+        const rectStartY = 0;
+        const rectWidth = 10;
+        const rectHeight = 7.5;
+        const fontSize = 0.6;
+        const textStyle = {color: '#aaa', font: fontSize + " Roboto", align: "left"};
+        const headerTextStyle = {color: '#E0E0E0', font: fontSize + " Roboto", align: "left"};
+        const offsetX = 0.5;
+        let offsetY = 1; // Increased for each entry
+
+        // Background rectangle
+        room.visual.rect(rectStartX,
+            rectStartY,
+            rectWidth,
+            rectHeight,
+            {fill: '#00897B', stroke: '#00ACC1', strokeWidth: '0.05', opacity: '0.1'});
+
+        room.visual.text('Cur',  rectStartX + offsetX,     rectStartY + offsetY, headerTextStyle);
+        room.visual.text('Max',  rectStartX + offsetX + 2, rectStartY + offsetY, headerTextStyle);
+        room.visual.text('Role', rectStartX + offsetX + 4, rectStartY + offsetY, headerTextStyle);
+
+        offsetY += fontSize;
+        for(const [role,amount] of Object.entries(creepCounter))
+        {
+            const hrRole = constants.HUMAN_READABLE_ROLE_NAME[role];
+            let currentTextStyle = _.cloneDeep(textStyle);
+            if (creepsWanted[role] !== undefined)
+            {
+                currentTextStyle.color = (amount === creepsWanted[role]) ? '#43A047' : '#FB8C00';
+                room.visual.text(creepsWanted[role], rectStartX + offsetX + 2, rectStartY + offsetY, currentTextStyle);
+            }
+
+            room.visual.text(amount,             rectStartX + offsetX,     rectStartY + offsetY, currentTextStyle);
+            room.visual.text(hrRole,             rectStartX + offsetX + 4, rectStartY + offsetY, currentTextStyle);
+            offsetY += fontSize;
+        }
+
     },
 
     // Currently a test function. Should find the centroid between Sources and Room Controller. Might be useful for automated expansions.
