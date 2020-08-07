@@ -84,7 +84,7 @@ const utilVisualizer =
             [constants.ROLE_STATIC_HARVESTER] : room.memory.sources.length,
             [constants.ROLE_PROSPECTOR]       : constants.MAX_PROSPECTORS_PER_ROOM,
             [constants.ROLE_TRANSPORTER]      : constants.MAX_TRANSPORTERS_PER_SOURCE * room.memory.sources.length,
-            [constants.ROLE_UPGRADER]         : constants.MAX_UPGRADERS_PER_ROOM,
+            [constants.ROLE_UPGRADER]         : util.numUpgradersForRoom(room),
         };
 
         // Draw the fancy rectangle

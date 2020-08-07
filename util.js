@@ -2,6 +2,8 @@
 // Utility functions that used through the code
 //////////////////////////////////////////////////////////////////////////////
 
+const constants         = require('util.constants');
+
 /**
  * A function that, given an array of structures, returns the one with the most energy stored
  *
@@ -116,10 +118,25 @@ function calculateBodyPartsCost(bodyParts)
     return totalCost;
 }
 
+/**
+ * Returns the necessary number of upgraders for a given room
+ * @param {Room} room - Target room
+ */
+function numUpgradersForRoom(room)
+{
+    if (room.controller.level < 6)
+        return constants.MAX_UPGRADERS_PER_ROOM_BELOW_CL_6;
+    else if (room.controller.level < 8)
+        return constants.MAX_UPGRADERS_PER_ROOM_BELOW_CL_8;
+    else
+        return constants.MAX_UPGRADERS_PER_ROOM_CL_8;
+}
+
 module.exports = {
     maxRes,
     minRes,
     spawn,
     creepSpawn,
     calculateBodyPartsCost,
+    numUpgradersForRoom,
 };

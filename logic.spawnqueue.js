@@ -172,7 +172,7 @@ let logicSpawnQueue = {
         }
         // console.log(transporterParts);
 
-        const amountTransporters = _.filter(Game.creeps, (creep) => (creep.memory.role === 'hauler' || creep.memory.role === constants.ROLE_TRANSPORTER) && (creep.memory.room === room.name)).length;
+        const amountTransporters = _.filter(Game.creeps, (creep) => creep.memory.role === constants.ROLE_TRANSPORTER && (creep.memory.room === room.name)).length;
         for(let i = 0, l = room.memory.sources.length; i < l; ++i)
         {
             if (room.memory.sources[i].haulers >= constants.MAX_TRANSPORTERS_PER_SOURCE)
@@ -236,39 +236,23 @@ let logicSpawnQueue = {
      */
     check_upgrader: function(room)
     {
-        const amountUpgrader = _.filter(Game.creeps, (creep) => (creep.memory.role === 'upgrader' || creep.memory.role === constants.ROLE_UPGRADER) && (creep.memory.room === room.name)).length;
-        if (amountUpgrader >= constants.MAX_UPGRADERS_PER_ROOM)
+        const maxUpgradersPerRoom = util.numUpgradersForRoom(room);
+        const amountUpgrader = _.filter(Game.creeps, (creep) => creep.memory.role === constants.ROLE_UPGRADER && (creep.memory.room === room.name)).length;
+        if (amountUpgrader >= maxUpgradersPerRoom)
             return;
 
-        // Limit the amount of par sets added per upgrader
-        let maxPartsSet = 4;
-
-        let desiredParts = [MOVE, MOVE, WORK, CARRY, CARRY]; // 300 energy
-        let energyAvailable = room.energyCapacityAvailable - 300;
-
-        let addExtraWorkPart = false;
+        // Limit the amount of part sets added per upgrader
+        const maxPartsSet = 10;
         let addedSets = 0;
-        while (energyAvailable > 150 && addedSets <= maxPartsSet)
+        let desiredParts = [];
+        let energyAvailable = room.energyCapacityAvailable;
+        while (energyAvailable > 200 && addedSets <= maxPartsSet)
         {
-            energyAvailable -= 150;
+            energyAvailable -= 200;
+            desiredParts.push(CARRY);
             desiredParts.push(MOVE);
-            desiredParts.push(CARRY);
-            desiredParts.push(CARRY);
-
-            if (energyAvailable > 100)
-            {
-                if (addExtraWorkPart)
-                {
-                    addExtraWorkPart = false;
-                    energyAvailable -= 100;
-                    desiredParts.push(WORK);
-                }
-                else
-                {
-                    addExtraWorkPart = true; // Add extra work part on next loop
-                }
-            }
-            addedSets += 1;
+            desiredParts.push(WORK);
+            ++addedSets;
         }
 
         const newUpgraderName = constants.ROLE_UPGRADER + (Game.time % 15000).toString(36);
@@ -290,7 +274,7 @@ let logicSpawnQueue = {
      */
     check_builder: function(room)
     {
-        const amountBuilder = _.filter(Game.creeps, (creep) => (creep.memory.role === 'builder' || creep.memory.role === constants.ROLE_BUILDER) && (creep.memory.room === room.name)).length;
+        const amountBuilder = _.filter(Game.creeps, (creep) => creep.memory.role === constants.ROLE_BUILDER && (creep.memory.room === room.name)).length;
 
         if (amountBuilder >= constants.MAX_BUILDERS_PER_ROOM)
             return;
