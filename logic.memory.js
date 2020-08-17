@@ -33,6 +33,9 @@ let logicMemory = {
             }
         }
     }
+
+
+    // Todo: Delete variable `this.room.memory.staticHarvesting` when room reaches level 2
 };
 
 module.exports = logicMemory;

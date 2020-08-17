@@ -33,12 +33,66 @@ let logicSpawnQueue = {
             filter: (structure) => { return structure.structureType === STRUCTURE_CONTAINER; }
         });
 
-        this.check_static_harvester(room);
-        this.check_transporter(room);
+        if (room.controller.level < 2)
+            this.check_low_level_harvester(room);
+        else
+            this.check_static_harvester(room);
+
+        if (room.controller.level > 1 || room.memory.staticHarvesting === true)
+            this.check_transporter(room);
+
         this.check_upgrader(room);
         this.check_builder(room);
         this.check_prospector(room);
         this.check_scout(room);
+    },
+
+    /**
+     * This only happens when Room Control Level === 1
+     * @param {Room} room
+     */
+    check_low_level_harvester: function (room)
+    {
+        const desiredParts = [WORK, CARRY, MOVE];
+
+        // Search for available sources, without a static harvester creep assigned
+        const sourcesInTheRoom = room.memory.sources.length;
+        for (let i = 0; i < sourcesInTheRoom; ++i)
+        {
+            if (room.memory.sources[i].harvester !== undefined)
+            {
+                // Skip sources with existing harvesters - try to get by ID
+                if (Game.getObjectById(room.memory.sources[i].harvester))
+                    continue;
+
+                // If it failed, try to get the harvester using it's name. That will happen in the first time this runs (We can't store the id until the creep is spawned)
+                const creep = Game.creeps[room.memory.sources[i].harvester];
+                if (creep)
+                {
+                    // Did we get it? Save it as id for future checks
+                    if (typeof creep.id !== 'undefined') // This prevents multiple spawns from setting the variable to undefined ;)
+                    {
+                        room.memory.sources[i].harvester = creep.id;
+                        continue;
+                    }
+                }
+            }
+
+            // Still here? Spawn a new Harvester
+            // POWER_CREEP_LIFE_TIME = 5000, CREEP_LIFE_TIME = 1500, Least common multiple = 15000
+            const newHarvesterName = constants.ROLE_LOWLVL_HARVESTER + (Game.time % 15000).toString(36);
+            const newCreep = {
+                bodyParts: desiredParts,
+                name: newHarvesterName, // Maybe move this to the actual spawning function?
+                memory: {
+                    role: constants.ROLE_LOWLVL_HARVESTER,
+                    source: i,
+                    room: room.name
+                }
+            }
+
+            this.spawnQueue.push(constants.PRIORITY_VERY_HIGH, newCreep);
+        }
     },
 
     /**
@@ -172,7 +226,7 @@ let logicSpawnQueue = {
         }
         // console.log(transporterParts);
 
-        const amountTransporters = _.filter(Game.creeps, (creep) => creep.memory.role === constants.ROLE_TRANSPORTER && (creep.memory.room === room.name)).length;
+        const amountTransporters = _.filter(Game.creeps, (creep) => (creep.memory.role === 'hauler' || creep.memory.role === constants.ROLE_TRANSPORTER) && (creep.memory.room === room.name)).length;
         for(let i = 0, l = room.memory.sources.length; i < l; ++i)
         {
             if (room.memory.sources[i].haulers >= constants.MAX_TRANSPORTERS_PER_SOURCE)
@@ -236,23 +290,39 @@ let logicSpawnQueue = {
      */
     check_upgrader: function(room)
     {
-        const maxUpgradersPerRoom = util.numUpgradersForRoom(room);
-        const amountUpgrader = _.filter(Game.creeps, (creep) => creep.memory.role === constants.ROLE_UPGRADER && (creep.memory.room === room.name)).length;
-        if (amountUpgrader >= maxUpgradersPerRoom)
+        const amountUpgrader = _.filter(Game.creeps, (creep) => (creep.memory.role === 'upgrader' || creep.memory.role === constants.ROLE_UPGRADER) && (creep.memory.room === room.name)).length;
+        if (amountUpgrader >= constants.MAX_UPGRADERS_PER_ROOM)
             return;
 
-        // Limit the amount of part sets added per upgrader
-        const maxPartsSet = 10;
+        // Limit the amount of par sets added per upgrader
+        let maxPartsSet = 4;
+
+        let desiredParts = [MOVE, MOVE, WORK, CARRY, CARRY]; // 300 energy
+        let energyAvailable = room.energyCapacityAvailable - 300;
+
+        let addExtraWorkPart = false;
         let addedSets = 0;
-        let desiredParts = [];
-        let energyAvailable = room.energyCapacityAvailable;
-        while (energyAvailable > 200 && addedSets <= maxPartsSet)
+        while (energyAvailable > 150 && addedSets <= maxPartsSet)
         {
-            energyAvailable -= 200;
-            desiredParts.push(CARRY);
+            energyAvailable -= 150;
             desiredParts.push(MOVE);
-            desiredParts.push(WORK);
-            ++addedSets;
+            desiredParts.push(CARRY);
+            desiredParts.push(CARRY);
+
+            if (energyAvailable > 100)
+            {
+                if (addExtraWorkPart)
+                {
+                    addExtraWorkPart = false;
+                    energyAvailable -= 100;
+                    desiredParts.push(WORK);
+                }
+                else
+                {
+                    addExtraWorkPart = true; // Add extra work part on next loop
+                }
+            }
+            addedSets += 1;
         }
 
         const newUpgraderName = constants.ROLE_UPGRADER + (Game.time % 15000).toString(36);
@@ -274,7 +344,7 @@ let logicSpawnQueue = {
      */
     check_builder: function(room)
     {
-        const amountBuilder = _.filter(Game.creeps, (creep) => creep.memory.role === constants.ROLE_BUILDER && (creep.memory.room === room.name)).length;
+        const amountBuilder = _.filter(Game.creeps, (creep) => (creep.memory.role === 'builder' || creep.memory.role === constants.ROLE_BUILDER) && (creep.memory.room === room.name)).length;
 
         if (amountBuilder >= constants.MAX_BUILDERS_PER_ROOM)
             return;

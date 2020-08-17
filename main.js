@@ -16,7 +16,7 @@ global.FlatQueue        = require('datastructure.priorityqueue');
 require('util.ext.prototype.roomPosition');
 require('util.ext.prototype.roomVisual');
 
-const constants         = require("util.constants");
+const constants           = require("util.constants");
 
 // Screeps specific code
 const logicMemoryInit     = require('logic.memoryinit');
@@ -184,6 +184,7 @@ module.exports.loop = function ()
                 roleScout.run(creep);
                 break;
 
+            case constants.ROLE_LOWLVL_HARVESTER:
             case constants.ROLE_STATIC_HARVESTER:
                 roleStaticHarvester.run(creep);
                 break;

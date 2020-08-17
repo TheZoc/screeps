@@ -19,6 +19,7 @@ let constants = {
     // Creep Roles
     ROLE_BUILDER          : 'B',
     ROLE_PROSPECTOR       : 'P',
+    ROLE_LOWLVL_HARVESTER : 'HL',
     ROLE_REMOTE_HARVESTER : 'R', // Previously Neighbour Miner
     ROLE_SCOUT            : 'S', // Need to be rebuilt from scratch
     ROLE_STATIC_HARVESTER : 'H',
@@ -42,6 +43,7 @@ let constants = {
 constants.HUMAN_READABLE_ROLE_NAME = {
     [constants.ROLE_BUILDER]          : 'Builder',
     [constants.ROLE_PROSPECTOR]       : 'Prospector',
+    [constants.ROLE_LOWLVL_HARVESTER] : 'Harvester (Low Level)',
     [constants.ROLE_REMOTE_HARVESTER] : 'Remote Harvester',
     [constants.ROLE_SCOUT]            : 'Scout',
     [constants.ROLE_STATIC_HARVESTER] : 'Static Harvester',
