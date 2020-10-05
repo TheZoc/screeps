@@ -189,8 +189,7 @@ var roleUpgrader = {
 
                 let freeSlotsSource = _.filter(lookSource, function (obj)
                 {
-                    return (obj["terrain"] !== "wall") &&
-                           (obj["terrain"] !== "swamp");
+                    return (obj["terrain"] !== "wall");
                 });
 
                 if (freeSlotsSource.length > 1)

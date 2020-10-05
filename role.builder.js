@@ -310,8 +310,7 @@ var roleBuilder = {
 
                 let freeSlotsSource = _.filter(lookSource, function (obj)
                 {
-                    return (obj["terrain"] !== "wall") &&
-                           (obj["terrain"] !== "swamp");
+                    return (obj["terrain"] !== "wall");
                 });
 
                 if (freeSlotsSource.length > 1)
@@ -344,6 +343,7 @@ var roleBuilder = {
             }
             else
             {
+                console.log(ex(harvestableSources));
                 // Haven't encountered this issue yet.
                 // TODO: Decide strategy.
                 console.log("BIG PANIC FOR THE BUILDER");
