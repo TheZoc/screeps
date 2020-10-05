@@ -124,7 +124,9 @@ function calculateBodyPartsCost(bodyParts)
  */
 function numUpgradersForRoom(room)
 {
-    if (room.controller.level < 6)
+    if (room.controller.level < 2)
+        return constants.MAX_UPGRADERS_PER_ROOM_BELOW_CL_2;
+    else if (room.controller.level < 6)
         return constants.MAX_UPGRADERS_PER_ROOM_BELOW_CL_6;
     else if (room.controller.level < 8)
         return constants.MAX_UPGRADERS_PER_ROOM_BELOW_CL_8;

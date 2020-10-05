@@ -6,6 +6,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 global.FlatQueue        = require('datastructure.priorityqueue');
+global.util             = require('util');
 const constants         = require('util.constants');
 
 let logicSpawnQueue = {
@@ -291,7 +292,7 @@ let logicSpawnQueue = {
     check_upgrader: function(room)
     {
         const amountUpgrader = _.filter(Game.creeps, (creep) => (creep.memory.role === 'upgrader' || creep.memory.role === constants.ROLE_UPGRADER) && (creep.memory.room === room.name)).length;
-        if (amountUpgrader >= constants.MAX_UPGRADERS_PER_ROOM)
+        if (amountUpgrader >= util.numUpgradersForRoom(room))
             return;
 
         // Limit the amount of par sets added per upgrader
