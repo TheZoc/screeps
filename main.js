@@ -16,6 +16,10 @@ global.FlatQueue        = require('datastructure.priorityqueue');
 require('util.ext.prototype.roomPosition');
 require('util.ext.prototype.roomVisual');
 
+// New creeps roles
+require("role._creepentity")
+require('role.harvester');
+
 const constants           = require("util.constants");
 
 // Screeps specific code
@@ -185,6 +189,10 @@ module.exports.loop = function ()
                 break;
 
             case constants.ROLE_LOWLVL_HARVESTER:
+                new CreepType.Harvester(creep);
+                Creeps.get(creep.name).run();
+                break;
+
             case constants.ROLE_STATIC_HARVESTER:
                 roleStaticHarvester.run(creep);
                 break;
