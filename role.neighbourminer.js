@@ -212,6 +212,11 @@ var roleNeighbourMiner = {
             creep.memory.sourceIndex = i;
             return;
         }
+
+        // HACKY HACK: If we're still here, we still don't have a source. Just get a random one, but don't set this creep as the main harvester.
+        const target_index = Game.time % roomSources.length;
+        creep.memory.targetSourceId = roomSources[target_index].id;
+        creep.memory.sourceIndex = target_index;
     },
 
 
