@@ -105,7 +105,7 @@ module.exports.loop = function ()
         logicMemoryInit.run(Game.rooms[k]);
 
         // Attempt to create extensions in a X shape, per spawn/extension
-        logicExtensions.run(Game.rooms[k]);
+        //logicExtensions.run(Game.rooms[k]);
 
         // Visualizer utilities
         utilVisualizer.draw(Game.rooms[k]);
