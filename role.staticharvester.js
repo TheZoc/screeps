@@ -24,9 +24,12 @@ var roleStaticHarvester = {
 //           return;
 //       }
 
-        const targetPos = new RoomPosition(creep.room.memory.sources[creep.memory.source].x,
-                                           creep.room.memory.sources[creep.memory.source].y,
-                                           creep.room.name);
+        const targetRoomName = creep.memory.room;
+        const targetSource = Game.rooms[targetRoomName].memory.sources[creep.memory.source];
+
+        const targetPos = new RoomPosition(targetSource.x,
+                                           targetSource.y,
+                                           targetRoomName);
 
         // Creep state
         const creepEnergy    = creep.store.getUsedCapacity(RESOURCE_ENERGY);
