@@ -70,7 +70,16 @@ var roleNeighbourMiner = {
                     }
                     else
                     {
-                        creep.harvest(targetSource);
+                        const result = creep.harvest(targetSource);
+                        if (result === ERR_NOT_ENOUGH_RESOURCES)
+                        {
+                            // If the source is empty and the creep is at least 20% full, build roads or return while waiting.
+                            if (creep.store.getUsedCapacity(RESOURCE_ENERGY) > creep.store.getCapacity(RESOURCE_ENERGY) * 0.20)
+                            {
+                                creep.memory.working = false;
+                                return;
+                            }
+                        }
                     }
                 }
                 else
