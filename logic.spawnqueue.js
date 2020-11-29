@@ -207,6 +207,8 @@ let logicSpawnQueue = {
         if (this.listContainers.length === 0)
             return;
 
+        // TODO: Check if the target containers exists before spawning creep.
+
         // Limit the amount of [CARRY, CARRY, MOVE] added per transporter
         let maxPartsSet = 4;
 
