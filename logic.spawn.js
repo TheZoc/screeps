@@ -28,6 +28,10 @@ let logicSpawn = {
             {
                 this.spawnQueue.pop();
                 this.post_spawn_initialization(room, spawnData);
+
+                // Exit loop if there's nothing else to spawn.
+                if (this.spawnQueue.length === 0)
+                    break;
             }
         }
     },
