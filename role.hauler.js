@@ -135,7 +135,7 @@ var roleHauler = {
             if (potentialDeliveryTargets === null)
             {
                 // If we have more than 80% energy allocated, fill towers with the same priority.
-                if (creep.room.energyAvailable > creep.room.energyCapacityAvailable * 0.8)
+                if (creep.room.energyAvailable > creep.room.energyCapacityAvailable * 0.9) // Temp change, as no repair was happening
                 {
                     potentialDeliveryTargets = creep.room.find(FIND_MY_STRUCTURES,
                         {
