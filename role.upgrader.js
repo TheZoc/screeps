@@ -192,7 +192,7 @@ var roleUpgrader = {
                     return (obj["terrain"] !== "wall");
                 });
 
-                if (freeSlotsSource.length > 1)
+                if (freeSlotsSource.length >= 1)
                 {
                     harvestableSources.push(i);
                 }

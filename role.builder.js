@@ -312,8 +312,8 @@ var roleBuilder = {
                 {
                     return (obj["terrain"] !== "wall");
                 });
-
-                if (freeSlotsSource.length > 1)
+                
+                if (freeSlotsSource.length >= 1)
                 {
                     harvestableSources.push(i);
                 }
@@ -343,7 +343,6 @@ var roleBuilder = {
             }
             else
             {
-                console.log(ex(harvestableSources));
                 // Haven't encountered this issue yet.
                 // TODO: Decide strategy.
                 console.log("BIG PANIC FOR THE BUILDER");
