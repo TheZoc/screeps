@@ -47,17 +47,26 @@ var roleNeighbourMiner = {
                         (creep.memory.targetSourceId !== null &&
                          creep.memory.targetSourceId !== undefined))
                 {
-                    const sourcePos = new RoomPosition(Memory.rooms[creep.memory.harvestRoom].sources[creep.memory.sourceIndex].x,
+                    const harvestPos = new RoomPosition(Memory.rooms[creep.memory.harvestRoom].sources[creep.memory.sourceIndex].x,
                                                        Memory.rooms[creep.memory.harvestRoom].sources[creep.memory.sourceIndex].y,
                                                        creep.memory.harvestRoom);
 
-                    let inPosition = (targetSource !== null) ? creep.pos.inRangeTo(targetSource, 1)
-                                                             : creep.pos.isEqualTo(sourcePos);
+                    const inPosition = (targetSource !== null) ? creep.pos.inRangeTo(targetSource, 1)
+                                                               : creep.pos.inRangeTo(harvestPos, 1);
 
                     if (!inPosition)
                     {
                         if (!creep.fatigue)
-                            creep.moveTo(sourcePos, {visualizePathStyle: {stroke: '#FF00FF'}});
+                        {
+                            if (targetSource !== null)
+                            {
+                                creep.moveTo(targetSource.pos, {visualizePathStyle: {stroke: '#FF00FF'}});
+                            }
+                            else
+                            {
+                                creep.moveTo(harvestPos, {visualizePathStyle: {stroke: '#FF00FF'}});
+                            }
+                        }
                     }
                     else
                     {
