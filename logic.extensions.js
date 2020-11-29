@@ -95,13 +95,13 @@ var logicExtensions = {
                 this.queueExtensions.push(currentPosDiagonals[i]);
                 ++this.currentNumExtensions;
 
-                // Create roads for the extensions
-                if (createExtensionResult === OK)
-                {
-                    const currentPosHorizVert = _.map(HORIZONTALS, (d) => currentPosDiagonals[i].addDirection(d));
-                    for (let i = 0; i < currentPosHorizVert.length; ++i)
-                        targetRoom.createConstructionSite(currentPosHorizVert[i], STRUCTURE_ROAD);
-                }
+//                // Create roads for the extensions
+//                if (createExtensionResult === OK)
+//                {
+//                    const currentPosHorizVert = _.map(HORIZONTALS, (d) => currentPosDiagonals[i].addDirection(d));
+//                    for (let i = 0; i < currentPosHorizVert.length; ++i)
+//                        targetRoom.createConstructionSite(currentPosHorizVert[i], STRUCTURE_ROAD);
+//                }
             }
         }
 
