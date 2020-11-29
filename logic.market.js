@@ -9,7 +9,7 @@ let logicMarket = {
 
     minMineralAmountToStartSelling : 2000,
     minResourcesToStartSelling     : 2000,
-    resourcesToSell                : [RESOURCE_HYDROGEN], // ,RESOURCE_OXYGEN] // TODO: Flexibilize this
+    resourcesToSell                : [RESOURCE_HYDROGEN, RESOURCE_OXYGEN], // TODO: Flexibilize this
 
     /**
      * This should get the best deal in the market for the resources in the array resourcesToSell.
