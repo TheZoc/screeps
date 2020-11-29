@@ -61,7 +61,7 @@ let logicMarket = {
                 'Order details:\n' + ex(bestOrders[0]);
 
             console.log(buffer);
-            Game.notify(buffer, 360);
+            Game.notify(buffer, 1440);
         }
     },
 
