@@ -23,15 +23,16 @@ let logicSpawn = {
                 continue;
 
             const spawnData = this.spawnQueue.peek();
+
+            // Check if the queue is empty
+            if (spawnData === undefined)
+                return;
+
             const creepSpawn = util.creepSpawn(spawn, spawnData);
             if (creepSpawn === OK)
             {
                 this.spawnQueue.pop();
                 this.post_spawn_initialization(room, spawnData);
-
-                // Exit loop if there's nothing else to spawn.
-                if (this.spawnQueue.length === 0)
-                    break;
             }
         }
     },
