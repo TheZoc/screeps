@@ -106,7 +106,7 @@ let logicSpawnQueue = {
 
         // For the static harvester, 5 parts are enough to drain the source completely, before it respawns.
         // Attempting to use max 10 parts, to have more resources available sooner.
-        const maxWorkParts = 10;
+        const maxWorkParts = 5;
 
         // Assemble the creep blueprint
         // Minimum parts: [MOVE, CARRY, WORK]
