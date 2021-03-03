@@ -423,6 +423,12 @@ let logicSpawnQueue = {
         if (room.controller.level < 6)
             return;
 
+        // TODO: Improve this (Rooms might not have minerals)
+        const minerals = room.find(FIND_MINERALS);
+        
+        if (minerals.length == 0 || minerals[0]["mineralAmount"] == 0 || minerals[0]["ticksToRegeneration"] > 50)
+            return;
+
         const amountProspectors = _.filter(Game.creeps, (creep) => (creep.memory.role === constants.ROLE_PROSPECTOR) &&
                                                                    (creep.memory.room === room.name)).length;
 
