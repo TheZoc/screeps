@@ -8,8 +8,8 @@
 
 let constants = {
     // Base configuration - TODO: Move this to a better place
-    MAX_TRANSPORTERS_PER_SOURCE : 2,
-    MAX_BUILDERS_PER_ROOM : 2,
+    MAX_TRANSPORTERS_PER_SOURCE : 1, // This is usually 2. Reduced for testing.
+    MAX_BUILDERS_PER_ROOM : 1, // This is usually 2. Reduced for testing.
     MAX_PROSPECTORS_PER_ROOM : 1,
 
     MAX_UPGRADERS_PER_ROOM_BELOW_CL_2 : 2,
