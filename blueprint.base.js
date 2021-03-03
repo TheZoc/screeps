@@ -131,7 +131,7 @@ let blueprintBase = {
                 {structure: STRUCTURE_SPAWN, x: 0, y: 4},
                 {structure: STRUCTURE_OBSERVER, x: -1, y: 1},
                 {structure: STRUCTURE_POWER_SPAWN, x: 2, y: 2},
-                {structure: STRUCTURE_NUKER, x: 1, y: 5},
+                {structure: STRUCTURE_NUKER, x: 1, y: 5}, // Consider replacing this with a factory and repositioning the nuke
                 {structure: STRUCTURE_TOWER, x: 0, y: 6},
                 {structure: STRUCTURE_TOWER, x: 4, y: 2},
                 {structure: STRUCTURE_TOWER, x: 0, y: -2},
