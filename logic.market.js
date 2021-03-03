@@ -10,6 +10,7 @@ let logicMarket = {
     minMineralAmountToStartSelling : 2000,
     minResourcesToStartSelling     : 2000,
     resourcesToSell                : [RESOURCE_HYDROGEN, RESOURCE_OXYGEN], // TODO: Flexibilize this
+    minimumProfit                  : 0.3,
 
     /**
      * This should get the best deal in the market for the resources in the array resourcesToSell.
@@ -47,7 +48,12 @@ let logicMarket = {
         const bestOrders = this.getBestThreeBuyOrders(room, actualResourcesToSell);
         console.log('Best orders:\n' + ex(bestOrders));
 
-        //console.log("Here the good would be sold, but the code is disabled for now until we're happy with the formulas for estimating profits");
+        // Only sell if we would get more than 0.3 credits profit per unit. Otherwise, let them starve.
+        if (bestOrders[0]["estimatedProfitPerUnitSold"] < this.minimumProfit)
+        {
+            console.log('Profit would be too low. Holding to stock.')
+            return;
+        }
 
         // SELL!
         const amountToSell = Math.min(room.terminal.store[bestOrders[0].resourceType], bestOrders[0].remainingAmount,  bestOrders[0].amount);
