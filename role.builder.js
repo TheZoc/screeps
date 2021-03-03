@@ -258,7 +258,7 @@ var roleBuilder = {
         // Check if we have a storage and if it has enough energy for us
         if (creep.room.storage !== undefined)
         {
-            if (creep.room.storage.store.getUsedCapacity(RESOURCE_ENERGY) >= creep.store.getFreeCapacity(RESOURCE_ENERGY))
+            //if (creep.room.storage.store.getUsedCapacity(RESOURCE_ENERGY) >= creep.store.getFreeCapacity(RESOURCE_ENERGY))
             {
                 creep.memory.targetSource = creep.room.storage.id;
                 return;

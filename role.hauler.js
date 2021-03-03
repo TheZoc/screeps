@@ -177,7 +177,7 @@ var roleHauler = {
                 // TODO: Improve this mess! :(
                 if (creep.room.terminal !== undefined)
                 {
-                    if (creep.room.terminal.store.getUsedCapacity(RESOURCE_ENERGY) < 2000)
+                    if (creep.room.terminal.store.getUsedCapacity(RESOURCE_ENERGY) < 2000 && (Math.floor(Math.random() * 100) + 1) < 20) // 20% chance of going to the terminal, for now
                     {
                         const target = creep.room.terminal;
                         const transferResult = creep.transfer(target, RESOURCE_ENERGY);
